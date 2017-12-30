@@ -48,11 +48,10 @@ void m(float m1,float m2){ //TB6643KQ MotorDriver PWM function
 
 int main(void){
 
-    while(1){
-        m(0,0);
+    	m(2,2);
+    	wait(1);
+    	m(1,1);
         wait(1);
-        m(2,2);
-        wait(1);
-    }
+
     return 0;
 }
