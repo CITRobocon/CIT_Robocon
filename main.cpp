@@ -27,7 +27,7 @@ DigitalIn PR_FR(PC_0),PR_FL(PB_0),PR_RR(PC_2),PR_RL(PC_3),PR_FC(PC_1),PR_FLL(PA_
 
 void m(float m1,float m2){ //TB6643KQ モータードライバ関数
 
-	float s1,s2,pe;
+    float s1,s2,pe;
     float f = 20000;        //frequency(Hz)
     pe =  1/f;
     MD1_1.period(pe);
@@ -38,11 +38,11 @@ void m(float m1,float m2){ //TB6643KQ モータードライバ関数
     s2 = fabsf(m2);
 
     if(0 < m1 && m1 <= 1){
-        MD1_1 = s1;
-        MD1_2 = 0;
-    }else if(m1 < 0){
         MD1_1 = 0;
         MD1_2 = s1;
+    }else if(m1 < 0){
+        MD1_1 = s1;
+        MD1_2 = 0;
     }else if(m1 == 2){
         MD1_1 = 1;
         MD1_2 = 1;
