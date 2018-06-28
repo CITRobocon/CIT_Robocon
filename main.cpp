@@ -1,14 +1,34 @@
-//main board test
-
+//SHIRAGIKU
 #include "mbed.h"
+#include "QEI.h"
 
-PwmOut MD1_1(PA_5),MD1_2(PA_6),MD2_1(PA_7),MD2_2(PB_6); //Motor Driver
+DigitalOut LN(LED1);//NucleoLED
 
-DigitalOut led(LED1);
+BusOut L(PA_6,PC_4,PB_14);//メイン基板LED
 
-void m(float m1,float m2){ //TB6643KQ MotorDriver PWM function
-    float s1,s2,pe;
-    float f = 1000;        //frequency(Hz)
+AnalogIn PR_FR(PC_0),PR_FL(PB_0),PR_RR(PC_2),PR_RL(PC_3),PR_FC(PC_1);//フォトリフレクタアナログ読み取り
+DigitalIn PR_FLL(PA_4),PR_FRR(PA_1),PR_RC(PB_7),PR_RRR(PC_12),PR_RLL(PC_10);//フォトリフレクタデジタル読み取り
+
+DigitalIn SW(PB_13); //メイン基板タクトスイッチ
+
+DigitalIn EN_L(PC_6),EN_R(PC_8); //車輪1相エンコーダ
+
+PwmOut MD1_1(PA_8),MD1_2(PA_9),MD2_1(PA_10),MD2_2(PA_11); //モータードライバー信号
+
+BusIn in(PB_3,PB_5,PB_4,PB_15,PB_1,PB_2); //エンコーダプルアップ設定用
+QEI E_L(PB_3,PB_5,PB_4,1000,QEI::X2_ENCODING); //左接地エンコーダ
+QEI E_R(PB_15,PB_1,PB_2,1000,QEI::X2_ENCODING); //右接地エンコーダ
+
+
+/*Line sensor All digital
+DigitalIn PR_FR(PC_0),PR_FL(PB_0),PR_RR(PC_2),PR_RL(PC_3),PR_FC(PC_1),PR_FLL(PA_4),PR_FRR(PA_1),PR_RC(PB_7),PR_RRR(PC_12),PR_RLL(PC_10),
+*/
+
+
+void m(float m1,float m2){ //TB6643KQ モータードライバ関数
+
+	float s1,s2,pe;
+    float f = 20000;        //frequency(Hz)
     pe =  1/f;
     MD1_1.period(pe);
     MD1_2.period(pe);
@@ -31,6 +51,7 @@ void m(float m1,float m2){ //TB6643KQ MotorDriver PWM function
         MD1_1 = 0;
     }
 
+
     if(0 < m2 && m2 <= 1){
         MD2_1 = s2;
         MD2_2 = 0;
@@ -44,14 +65,33 @@ void m(float m1,float m2){ //TB6643KQ MotorDriver PWM function
         MD2_1 = 0;
         MD2_1 = 0;
     }
+
 }
+
+#if 1 //エンコーダカウント表示
 
 int main(void){
+    in.mode(PullUp);
 
-    	m(2,2);
-    	wait(1);
-    	m(1,1);
-        wait(1);
-
-    return 0;
+    while(1){
+        int count_l = E_L.getPulses();
+        int count_r = E_R.getPulses();
+        printf("%d %d\r\n",count_l,count_r);
+        wait(0.01);
+    }
 }
+
+#endif
+
+#if 0
+//フォトリフレクタテスト
+int main(void){
+
+    while(1){
+        printf("F %d | %f | %d | %f | %d || R  %d | %f | %d | %f | %d\r\n"
+        ,PR_FLL.read(),PR_FL.read(),PR_FC.read(),PR_FR.read(),PR_FRR.read()
+        ,PR_RLL.read(),PR_RL.read(),PR_RC.read(),PR_RR.read(),PR_RRR.read());
+
+    }
+}
+#endif
