@@ -1,5 +1,5 @@
-// "Odometry.h"
-// "QEI.h"を用いてオドメトリを取ります
+// Odometry.h
+// QEI.hを用いてオドメトリを取ります
 /*
    クラス：
      Odometry (class QEI *cp1, class QEI *cp2, float PPR, float rario, float radius, float l, float T)
