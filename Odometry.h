@@ -32,10 +32,6 @@
         オドメトリの計算を中断します
         
   #sample#
-    int main (void){
-      #include "mbed.h"
-      #include "Odometry.h"
-
       QEI encR(PB_15,PB_1,PB_2,1000,QEI::X2_ENCODING);
       QEI encL(PB_3,PB_5,PB_4,1000,QEI::X2_ENCODING);
       BusIn in(PB_3,PB_5,PB_4,PB_15,PB_1,PB_2);
@@ -46,9 +42,9 @@
          in.mode(PullUp);
          odometry.setPositon(0.0f, 0.0f, 0.0f);
          odometry.start();
-      while(1)
-         printf("%f, %f, %f\n\r", odometry.x, odometry.z, odometry.ang);
-    }
+         while(1)
+            printf("%f, %f, %f\n\r", odometry.x, odometry.z, odometry.ang);
+      }
   #sample#
 */
 
