@@ -10,7 +10,7 @@
        float ratio : ギア比
        float radius : 車輪半径　[m]
        float l : 車輪間距離 [m]
-       T : 計算周期 [s]
+       float T : 計算周期 [s]
 
     クラス内変数 (public)：
       x : オドメトリにより計算したx座標 [m]
