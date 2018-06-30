@@ -36,7 +36,7 @@
       QEI encL(PB_3,PB_5,PB_4,1000,QEI::X2_ENCODING);
       BusIn in(PB_3,PB_5,PB_4,PB_15,PB_1,PB_2);
 
-      Odometry odometry(&encR, &encL, 2000, 1.0f, 0.025f, 0.146f, 0.020f);
+      Odometry odometry(&encR, &encL, 1000, 1.0f, 0.025f, 0.146f, 0.020f);
 
       int main (void){
          in.mode(PullUp);
