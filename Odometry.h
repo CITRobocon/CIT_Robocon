@@ -6,24 +6,24 @@
 
        class QEI *cp1 : 右側エンコーダのQEIクラスポインタ
        class QEI *cp2 : 左側エンコーダのQEIクラスポインタ
-       int ppr : 一回転の総パルス数 (pulses per revolution)
+       float PPR : 一回転の総パルス数 (pulses per revolution)
        float ratio : ギア比
        float radius : 車輪半径　[m]
        float l : 車輪間距離 [m]
        float T : 計算周期 [s]
 
     クラス内変数 (public)：
-      x : オドメトリにより計算したx座標 [m]
-      z : オドメトリにより計算したz座標 [m]
-      ang : オドメトリにより計算した向いている方向 (-PI~PI) [rad]
+      float x : オドメトリにより計算したx座標 [m]
+      float z : オドメトリにより計算したz座標 [m]
+      float ang : オドメトリにより計算した向いている方向 (-PI~PI) [rad]
 
     クラス内関数 (public)：
       void setPosition (float x0, float z0, float ang0)
         入力した位置に設定します
 
-        x0 : x座標
-        z0 : z座標
-        ang0 : 向いている角度
+        float x0 : x座標
+        float z0 : z座標
+        float ang0 : 向いている角度
 
       void start (void)
         オドメトリの計算を開始します
@@ -31,21 +31,21 @@
       void stop (void)
         オドメトリの計算を中断します
         
-  #sample#
-      QEI encR(PB_15,PB_1,PB_2,1000,QEI::X2_ENCODING);
-      QEI encL(PB_3,PB_5,PB_4,1000,QEI::X2_ENCODING);
-      BusIn in(PB_3,PB_5,PB_4,PB_15,PB_1,PB_2);
+   #sample#
+     QEI encR(PB_15,PB_1,PB_2,1000,QEI::X2_ENCODING);
+     QEI encL(PB_3,PB_5,PB_4,1000,QEI::X2_ENCODING);
+     BusIn in(PB_3,PB_5,PB_4,PB_15,PB_1,PB_2);
 
-      Odometry odometry(&encR, &encL, 1000, 1.0f, 0.025f, 0.146f, 0.020f);
+     Odometry odometry(&encR, &encL, 1000, 1.0f, 0.025f, 0.146f, 0.020f);
 
-      int main (void){
-         in.mode(PullUp);
-         odometry.setPositon(0.0f, 0.0f, 0.0f);
-         odometry.start();
-         while(1)
-            printf("%f, %f, %f\n\r", odometry.x, odometry.z, odometry.ang);
-      }
-  #sample#
+     int main (void){
+        in.mode(PullUp);
+        odometry.setPositon(0.0f, 0.0f, 0.0f);
+        odometry.start();
+        while(1)
+           printf("%f, %f, %f\n\r", odometry.x, odometry.z, odometry.ang);
+     }
+   #sample#
 */
 
 #ifndef ODOMETRY_H
