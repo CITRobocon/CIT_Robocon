@@ -2,28 +2,28 @@
 // QEI.hを用いてオドメトリを取ります
 /*
    クラス：
-     Odometry (class QEI *cp1, class QEI *cp2, float PPR, float rario, float radius, float l, float T)
+     Odometry (class QEI *cp1, class QEI *cp2, double PPR, double rario, double radius, double l, double T)
 
        class QEI *cp1 : 右側エンコーダのQEIクラスポインタ
        class QEI *cp2 : 左側エンコーダのQEIクラスポインタ
-       float PPR : 一回転の総パルス数 (pulses per revolution)
-       float ratio : ギア比
-       float radius : 車輪半径　[m]
-       float l : 車輪間距離 [m]
-       float T : 計算周期 [s]
+       double PPR : 一回転の総パルス数 (pulses per revolution)
+       double ratio : ギア比
+       double radius : 車輪半径　[m]
+       double l : 車輪間距離 [m]
+       double T : 計算周期 [s]
 
     クラス内変数 (public)：
-      float x : オドメトリにより計算したx座標 [m]
-      float z : オドメトリにより計算したz座標 [m]
-      float ang : オドメトリにより計算した向いている方向 (-PI~PI) [rad]
+      double x : オドメトリにより計算したx座標 [m]
+      double z : オドメトリにより計算したz座標 [m]
+      double ang : オドメトリにより計算した向いている方向 (-PI~PI) [rad]
 
     クラス内関数 (public)：
-      void setPosition (float x0, float z0, float ang0)
+      void setPosition (double x0, double z0, double ang0)
         入力した位置に設定します
 
-        float x0 : x座標
-        float z0 : z座標
-        float ang0 : 向いている角度
+        double x0 : x座標
+        double z0 : z座標
+        double ang0 : 向いている角度
 
       void start (void)
         オドメトリの計算を開始します
@@ -32,18 +32,18 @@
         オドメトリの計算を中断します
         
    #sample#
-     QEI encR(PB_15,PB_1,PB_2,1000,QEI::X2_ENCODING);
-     QEI encL(PB_3,PB_5,PB_4,1000,QEI::X2_ENCODING);
-     BusIn in(PB_3,PB_5,PB_4,PB_15,PB_1,PB_2);
+     QEI encR(GPIO1,GPIO2,NC,48,QEI::X4_ENCODING);
+     QEI encL(GPIO3,GPIO4,NC,48,QEI::X4_ENCODING);
+     BusIn in(GPIO1,GPIO2,GPIO3,GPIO4);
 
-     Odometry odometry(&encR, &encL, 1000, 1.0f, 0.025f, 0.146f, 0.020f);
+     Odometry odometry(&encR, &encL, 48, 0.15, 0.025, 0.146, 0.020);
 
      int main (void){
         in.mode(PullUp);
-        odometry.setPositon(0.0f, 0.0f, 0.0f);
+        odometry.setPositon(0.0, 0.0, 0.0);
         odometry.start();
         while(1)
-           printf("%f, %f, %f\n\r", odometry.x, odometry.z, odometry.ang);
+           printf("%lf, %lf, %lf\n\r", odometry.x, odometry.z, odometry.ang);
      }
    #sample#
 */
@@ -55,26 +55,26 @@
 #include "QEI.h"
 #include "math.h"
 
-#define PI 3.14159265358979f
+#define PI 3.14159265358979
 
 class Odometry{
-  float ppr, gear_ratio, wheel_radius, length;
-  float period;
+  double ppr, gear_ratio, wheel_radius, length;
+  double period;
   QEI *enc_r, *enc_l;
   Ticker calculate;
 
   void calcOdometry (void){
-    float dr = (float)(enc_r->getPulses())/ppr*gear_ratio*2.0f*PI*wheel_radius;
-    float dl = -(float)(enc_l->getPulses())/ppr*gear_ratio*2.0f*PI*wheel_radius;
-    float dtheta = (dr-dl)/length;
+    double dr = (double)(enc_r->getPulses())/ppr*gear_ratio*2.0*PI*wheel_radius;
+    double dl = -(double)(enc_l->getPulses())/ppr*gear_ratio*2.0*PI*wheel_radius;
+    double dtheta = (dr-dl)/length;
 
-    x += 0.5f*(dr+dl)*cosf(ang+dtheta/2.0f);
-    z += 0.5f*(dr+dl)*sinf(ang+dtheta/2.0f);
+    x += 0.50*(dr+dl)*cos(ang+dtheta/2.0);
+    z += 0.50*(dr+dl)*sin(ang+dtheta/2.0);
     ang += dtheta;
     if (ang < -PI)
-     ang += 2.0f*PI;
+     ang += 2.0*PI;
     else if (ang > PI)
-     ang -= 2.0f*PI;
+     ang -= 2.0*PI;
 
     enc_r->reset();
     enc_l->reset();
@@ -83,7 +83,7 @@ class Odometry{
 public:
   float x, z, ang;
 
-  Odometry (class QEI *qei1, class QEI *qei2, float PPR, float ratio, float radius, float l, float T){
+  Odometry (class QEI *qei1, class QEI *qei2, double PPR, double ratio, double radius, double l, double T){
     enc_r = qei1;
     enc_l = qei2;
     gear_ratio = ratio;
@@ -93,7 +93,7 @@ public:
     period = T;
   }
 
-  void setPositon (float x0, float z0, float ang0){
+  void setPositon (double x0, double z0, double ang0){
     x = x0;
     z = z0;
     ang = ang0;
