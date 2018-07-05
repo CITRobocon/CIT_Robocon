@@ -68,6 +68,10 @@ public:
   double y_prime (double u){
     return 3.0*K[1][0]*u*u + 2.0*K[1][1]*u + K[1][2];
   }
+   
+  double vecLen (double u){
+    return hypot(x_prime(u), y_prime(u));
+  }
 
   double vecAng (double u){
     return atan2(y_prime(u), x_prime(u));
