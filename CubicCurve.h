@@ -10,31 +10,26 @@
 
          double u : 媒介変数
          
-
        double y (double u)
          uのときのy座標を求めます。
 
          double u : 媒介変数
 
-
        double x_prime (double u)
          uのときのベクトルのx成分を求めます。
 
          double u : 媒介変数
-         
 
        double y_prime (double u)
          uのときのベクトルのy成分を求めます。
          
          double u : 媒介変数
 
-
        double vecAng (double u)
          uのときのベクトルの角度を求めます。
          (-PI<ang<PI)
 
          double u : 媒介変数
-
 
        void bezier (double p[4][2])
          条件を満たす三次のベジェ曲線を生成します。
