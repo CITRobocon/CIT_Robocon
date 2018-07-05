@@ -6,33 +6,38 @@
 
      クラス内関数：
        double x (double u)
-         uのときのx座標を求めます。
+         uのときのx座標を求めます
 
          double u : 媒介変数
          
        double y (double u)
-         uのときのy座標を求めます。
+         uのときのy座標を求めます
 
          double u : 媒介変数
 
        double x_prime (double u)
-         uのときのベクトルのx成分を求めます。
+         uのときのベクトルのx成分を求めます
 
          double u : 媒介変数
 
        double y_prime (double u)
-         uのときのベクトルのy成分を求めます。
+         uのときのベクトルのy成分を求めます
          
          double u : 媒介変数
-
+       
+       double vecLen (double u)
+         uのときのベクトルの長さを求めます
+         
+         double u : 媒介変数
+       
        double vecAng (double u)
-         uのときのベクトルの角度を求めます。
+         uのときのベクトルの角度を求めます
          (-PI<ang<PI)
 
          double u : 媒介変数
 
        void bezier (double p[4][2])
-         条件を満たす三次のベジェ曲線を生成します。
+         条件を満たす三次のベジェ曲線を生成します
          (0<=u<=1)
 
          double p[4][2] : p[4][2] = {{x0, y0}, ... {x3, y3}}
