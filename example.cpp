@@ -39,8 +39,8 @@ double y_rel;
 
 
 void control_pid (void){
-  x_rel = (path.x(i) - odometry.x) * cos(odometry.ang) + (path.y(i) - odometry.z) * sin(odometry.ang);
-  y_rel = -(path.x(i) - odometry.x) * sin(odometry.ang) + (path.y(i) - odometry.z) * cos(odometry.ang);
+	x_rel = (path.x(i) - odometry.x) * cos(odometry.ang) + (path.y(i) - odometry.z) * sin(odometry.ang);
+	y_rel = -(path.x(i) - odometry.x) * sin(odometry.ang) + (path.y(i) - odometry.z) * cos(odometry.ang);
 	
 	e = atan2(y_rel, x_rel);
 	ei += e*T;
@@ -63,7 +63,7 @@ void control_pid (void){
   		motor_right = -0.75 - (e*Kp + ei*Ki + ed*Kd);
 	  	motor_left = -0.75 + (e*Kp + ei*Ki + ed*Kd);
 		}
-  }else{
+ 	}else{
 		if (e*Kp + ei*Ki + ed*Kd > 0.25){
 			motor_right = 0.5;
 			motor_left = 1.0;
@@ -71,8 +71,8 @@ void control_pid (void){
 			motor_right = 1.0;
 			motor_left = 0.50;
 		}else{
-  		motor_right = 0.75 -(e*Kp + ei*Ki + ed*Kd);
-	  	motor_left = 0.75 + (e*Kp + ei*Ki + ed*Kd);
+  			motor_right = 0.75 -(e*Kp + ei*Ki + ed*Kd);
+	  		motor_left = 0.75 + (e*Kp + ei*Ki + ed*Kd);
 		}
 	}
 }
@@ -86,7 +86,7 @@ int main (void){
 	
 	path.bezier(p);
 	
-  odometry.setPositon(0.0f, 0.0f, (float)(PI/2.0));
+	odometry.setPositon(0.0f, 0.0f, (float)(PI/2.0));
 	odometry.start();
 	
 	control.attach(&control_pid, T);
@@ -94,23 +94,21 @@ int main (void){
 	for (i = 0.050; i <= 1.050; i += 0.050){
 		ei = 0.0;
 		wait(T);
-  	cost0 = x_rel*x_rel+y_rel*y_rel;
+  		cost0 = x_rel*x_rel+y_rel*y_rel;
 		//調整用
 		//printf ("(%lf) cost0 = %lf\n\r", i, cost0);
 		//printf ("%f, %f\n\r", odometry.x, odometry.z);
 		//printf ("%lf, %lf\n\r", path.x(i), path.y(i));
 		while (x_rel*x_rel+y_rel*y_rel > 0.10*cost0){
 			//調整用
-	  	//printf ("	in while : (%lf) path = %lf, %lf\n\r", i, path.x(i), path.y(i));
-  		//printf ("	in while : (%lf) state = %f, %f, %f\n\r", i, odometry.x, odometry.z, odometry.ang);
-		  //printf ("	in while : (%lf) cost = %lf, %lf\n\r", i, x_rel,  y_rel);
-	  	//printf ("	in while : (%lf) cost = %lf\n\r", i, x_rel*x_rel+y_rel*y_rel);
+	  		//printf ("	in while : (%lf) path = %lf, %lf\n\r", i, path.x(i), path.y(i));
+  			//printf ("	in while : (%lf) state = %f, %f, %f\n\r", i, odometry.x, odometry.z, odometry.ang);
+		  	//printf ("	in while : (%lf) cost = %lf, %lf\n\r", i, x_rel,  y_rel);
+	  		//printf ("	in while : (%lf) cost = %lf\n\r", i, x_rel*x_rel+y_rel*y_rel);
 			//printf (" in while : (%lf) in_theta = %lf\n\r", i, e*Kp + ei*Ki + ed*Kd);
-		  if ((sw[1]&1) == 0)
-				break;
+			if ((sw[1]&1) == 0)　break;
 		}
-		if ((sw[1]&1) == 0)
-			break;
+		if ((sw[1]&1) == 0)　break;
 	}
 	control.detach();
 	motor_right = 0.0;
