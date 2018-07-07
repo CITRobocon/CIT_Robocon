@@ -64,8 +64,8 @@ class Odometry{
   Ticker calculate;
 
   void calcOdometry (void){
-    double dr = (double)(enc_r->getPulses())/ppr*gear_ratio*2.0*PI*wheel_radius;
-    double dl = -(double)(enc_l->getPulses())/ppr*gear_ratio*2.0*PI*wheel_radius;
+    double dr = -(double)(enc_r->getPulses())/ppr*gear_ratio*2.0*PI*wheel_radius;
+    double dl = (double)(enc_l->getPulses())/ppr*gear_ratio*2.0*PI*wheel_radius;
     double dtheta = (dr-dl)/length;
 
     x += 0.50*(dr+dl)*cos(ang+dtheta/2.0);
