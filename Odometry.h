@@ -81,7 +81,7 @@ class Odometry{
   }
 
 public:
-  float x, z, ang;
+  double x, z, ang;
 
   Odometry (class QEI *qei1, class QEI *qei2, double PPR, double ratio, double radius, double l, double T){
     enc_r = qei1;
