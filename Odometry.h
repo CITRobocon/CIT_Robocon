@@ -8,13 +8,13 @@
        class QEI *cp2 : 左側エンコーダのQEIクラスポインタ
        double PPR : 一回転の総パルス数 (pulses per revolution)
        double ratio : ギア比
-       double radius : 車輪半径　[m]
-       double l : 車輪間距離 [m]
+       double radius : 車輪半径
+       double l : 車輪間距離
        double T : 計算周期 [s]
 
     クラス内変数 (public)：
-      double x : オドメトリにより計算したx座標 [m]
-      double z : オドメトリにより計算したz座標 [m]
+      double x : オドメトリにより計算したx座標
+      double z : オドメトリにより計算したz座標
       double ang : オドメトリにより計算した向いている方向 (-PI~PI) [rad]
 
     クラス内関数 (public)：
