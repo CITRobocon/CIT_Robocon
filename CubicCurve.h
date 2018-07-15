@@ -6,6 +6,7 @@
 /*
    クラス：
      CubicCurve
+     
      クラス内関数：
        double x (double u)
        
@@ -76,7 +77,6 @@ class CubicCurve{
   double K[2][4];
 
 public:
-  
   double x (double u){
     return K[0][0]*u*u*u + K[0][1]*u*u + K[0][2]*u + K[0][3];
   }
