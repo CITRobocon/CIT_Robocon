@@ -115,7 +115,7 @@ public:
   double calcNearestVar (double x, double y, double u){
     double num[] = {x, y};
     double Kc[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    double ddu;
+    double ddc;
     int i;
     
     for (i = 0; i < 2; i++){
@@ -130,9 +130,9 @@ public:
     
     /*Newton's method*/
     for (i = 0; i < 5; i++){
-      ddu = (30*Kc[0]*u*u*u*u + 20*Kc[1]*u*u*u + 12*Kc[2]*u*u + 6.0*Kc[3]*u + 2.0*Kc[4]);
-      if (ddu != 0.0)
-        u -= (6.0*Kc[0]*u*u*u*u*u + 5.0*Kc[1]*u*u*u*u + 4.0*Kc[2]*u*u*u + 3.0*Kc[3]*u*u + 2.0*Kc[4]*u + Kc[5]) / ddu;
+      ddc = (30*Kc[0]*u*u*u*u + 20*Kc[1]*u*u*u + 12*Kc[2]*u*u + 6.0*Kc[3]*u + 2.0*Kc[4]);
+      if (ddc != 0.0)
+        u -= (6.0*Kc[0]*u*u*u*u*u + 5.0*Kc[1]*u*u*u*u + 4.0*Kc[2]*u*u*u + 3.0*Kc[3]*u*u + 2.0*Kc[4]*u + Kc[5]) / ddc;
     }
     
     return u;
