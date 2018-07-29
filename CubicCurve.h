@@ -61,7 +61,7 @@
          
        
        double curvRad (double u)
-         uのときの曲率半径を求めます
+         uのときの曲率半径をcwのとき負、ccwとき正の数として求めます
          直線(R=inf)のときはNaNを返します
          
          double u : 媒介変数
