@@ -55,7 +55,9 @@ int main (void){
     while(u < 1.0)
         printf (" e(pos,ang) = (%lf, %lf)\n\r", e_pos, e_ang);
         //printf ("x,z,ang = %lf, %lf, %lf\n\r", odometry.x, odometry.z, odometry.ang);
+    
     control.detach();
     m(2.0f,2.0f);
     printf ("finish!\n\r");
+    while(1);
 }
