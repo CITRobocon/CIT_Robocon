@@ -1,4 +1,4 @@
-// フォトリフレクターによるPID制御（直進）
+// フォトリフレクターによる経路追従PID制御
 
 #include "mbed.h"
 #include "SHIRAGIKU.h"
