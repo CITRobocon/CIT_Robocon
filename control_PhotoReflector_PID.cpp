@@ -1,9 +1,7 @@
-// フォトリフレクターによるPID制御
+// フォトリフレクターによるPID制御（直進）
 
 #include "mbed.h"
 #include "SHIRAGIKU.h"
-#include "Odometry.h"
-#include "CubicCurve.h"
 
 //(PR_FR,PR_FL) 同距離で大体0.28~0.29
 
@@ -47,9 +45,9 @@ int main (void){
     
     while(PR_FR.read() > 0.25f || PR_FL.read() > 0.25f)
         printf ("e(p,i,d)  = (%f, %f, %f)\n\r", ep, ei, ed);
+        
     control.detach();
     m(2.0f, 2.0f);
-
     printf ("finish!\n\r");
     while(1);
 }
