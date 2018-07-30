@@ -1,4 +1,4 @@
-// オドメトリによるP制御
+// オドメトリによる仮想経路追従P制御
 
 #include "mbed.h"
 #include "SHIRAGIKU.h"
