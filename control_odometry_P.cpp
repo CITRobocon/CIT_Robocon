@@ -1,11 +1,11 @@
-// オドメトリによる仮想経路追従P制御
+// オドメトリによる仮想経路追従P,FF制御
 
 #include "mbed.h"
 #include "SHIRAGIKU.h"
 #include "Odometry.h"
 #include "CubicCurve.h"
 
-Odometry odometry(&encR, &encL, 2000, 1.0, 25.5, 619, 0.010);
+Odometry odometry(&encR, &encL, 2000, 1.0, ENCODER_RADIUS, ENCODER_DISTANCE, 0.010);
 
 CubicCurve path;
 
@@ -17,16 +17,20 @@ double e_pos;
 double e_ang;
 
 void handler (void){
-    const double K_pos = 0.025, K_ang = 8.0;
-    double side = -(path.x(u)-odometry.x)*sin(odometry.ang) + (path.y(u)-odometry.z)*cos(odometry.ang);
-    if (side != 0.0)
-        side /= fabs(side);
-        
-    e_pos = side*hypot(odometry.x-path.x(u), odometry.z-path.y(u));
+    const double K_pos = 0.25, K_ang = 5.0;
+    double R = path.curvRad(u);
+    double ff;
+    
+    if (R == 0.0 || isnan(R))
+        ff = 0.0;
+    else
+        ff = 0.50*WHEEL_DISTANCE/2.0/R;
+         
+    e_pos = -(path.x(u)-odometry.x)*sin(odometry.ang) + (path.y(u)-odometry.z)*cos(odometry.ang);
     e_ang = -odometry.ang + path.vecAng(u);
     
-    float duty_r = (float)(0.50 + K_pos*e_pos + K_ang*e_ang);
-    float duty_l = (float)(0.50 - K_pos*e_pos - K_ang*e_ang);
+    float duty_r = (float)(0.50 + ff + K_pos*e_pos + K_ang*e_ang);
+    float duty_l = (float)(0.50 - ff - K_pos*e_pos - K_ang*e_ang);
     
     if (duty_r > 1.0f){
         duty_r = 1.0f;
@@ -50,14 +54,14 @@ int main (void){
     path.bezier(p);
     in.mode(PullUp);
     odometry.setPositon(0.0, 0.0, 3.1415926535/2.0);
+    
     odometry.start();
     control.attach(&handler, 0.020f);
+
     while(u < 1.0)
         printf (" e(pos,ang) = (%lf, %lf)\n\r", e_pos, e_ang);
-        //printf ("x,z,ang = %lf, %lf, %lf\n\r", odometry.x, odometry.z, odometry.ang);
     
     control.detach();
     m(2.0f,2.0f);
     printf ("finish!\n\r");
-    while(1);
 }
