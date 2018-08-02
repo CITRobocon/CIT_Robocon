@@ -1,3 +1,41 @@
+// ControlFunc.h
+/*
+    class ControlFunc:
+        functions in class (public):
+            void followWhiteLine (void)
+                フォトリフレクタを用いて白線を辿ります
+                
+            void followVirtualLine (double p[4][2], Odometry *odo)
+                オドメトリを用いて仮想の線を辿ります
+                
+                double p[4][2] : ベジェ曲線の制御点{{x0, y0}, ...{x3, y3}}
+                Odometry *odo : Odometryクラスポインタ
+                
+            void invert (void)
+                進行方向を反転させます
+                
+    #sample#
+        #include "ControlFunc.h"
+
+        int main (void){
+            Odometry odometry(&encR, &encL, 2000, 1.0, ENCODER_RADIUS, ENCODER_DISTANCE, 0.010);
+            ControlFunc controller;
+    
+            odometry.setPosition(0.0, 0.0, PI/2.0);
+            odometry.start();
+    
+            double p[4][2] = {{0.0, 0.0}, {0.0, 1000}, {1000, 1000}, {1000, 2000}};
+    
+            controller.followVirtualLine(p, &odometry);
+            controller.invert();
+            controller.followWhiteLine();
+    
+            printf ("FINISH!\n\r");
+            while(1);
+        }
+    #sample#
+*/
+
 #include "mbed.h"
 #include "SHIRAGIKU.h"
 #include "Odometry.h"
@@ -95,7 +133,9 @@ public:
         Kp_2 = 0.0, Ki_2 = 0.0, Kd_2 = 0.0;
         ei_1 = 0.0;
         ep0_1 = 0.0;
+        
         control.attach(this, &ControlFunc::control_PR, period);
+        
         if (dir == 1){
             while (!PR_FRR);
             while (PR_FRR);
@@ -103,40 +143,29 @@ public:
             while (!PR_RRR);
             while (PR_RRR);
         }
+        
         control.detach();
         m(2.0f, 2.0f);
     }
     
     void followVirtualLine (double p[4][2], Odometry *od){
-        int i;
-        for (i = 0; i < 4; i++){
-            p[i][0] *= dir;
-            p[i][1] *= dir;
-        }
-        odometry = od;
         Kp_1 = 0.025, Ki_1 = 0.00010, Kd_1 = 0.000010;
         Kp_2 = 3.0, Ki_2 = 0.0030, Kd_2 = 0.00030;
         ei_1 = 0.0;
         ei_2 = 0.0;
         ep0_1 = 0.0;
         ep0_2 = 0.0;
-        path.bezier(p);
-        in.mode(PullUp);
-        
-        if (dir == 1)
-            odometry->setPositon(p[0][0], p[0][1], 3.1415926535/2.0);
-        else
-            odometry->setPositon(p[0][0], p[0][1], -3.1415926535/2.0);
-            
         u = 0.0;
         
-        odometry->start();
+        odometry = od;
+        path.bezier(p);
+        
         control.attach(this, &ControlFunc::control_odometry, period);
-        while(u < 1.0)
-            printf ("dir(x,z) = %d(%lf, %lf)\n\r", dir, odometry->x, odometry->z);
+        
+        while(u < 1.0);
+        
         control.detach();
         m(2.0f,2.0f);
-        odometry->stop();
     }
     
     void invert (void){
