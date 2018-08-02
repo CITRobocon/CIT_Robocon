@@ -1,8 +1,8 @@
 // ControlFunc.h
 /*
     class ControlFunc:
-        functions in class (public):
-            void followWhiteLine (void)
+        Public functions:
+            void followBrightLine (void)
                 フォトリフレクタを用いて白線を辿ります
                 
             void followVirtualLine (double p[4][2], Odometry *odo)
