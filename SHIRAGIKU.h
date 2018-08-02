@@ -2,9 +2,14 @@
 #include "mbed.h"
 #include "QEI.h"
 
-DigitalOut LN(LED1);//NucleoLED
+#define WHEEL_DISTANCE 424
+#define WHEEL_RADIUS 42.5
+#define ENCODER_DISTANCE 619
+#define ENCODER_RADIUS 25.5
 
-BusOut L(PA_6,PC_4,PB_14);//メイン基板LED
+DigitalOut LED_N(LED1);//NucleoLED
+
+BusOut LED(PA_6,PC_4,PB_14);//メイン基板LED
 
 AnalogIn PR_FR(PC_0),PR_FL(PB_0),PR_RR(PC_2),PR_RL(PC_3),PR_FC(PC_1);//フォトリフレクタアナログ読み取り
 DigitalIn PR_FLL(PA_4),PR_FRR(PA_1),PR_RC(PB_7),PR_RRR(PC_12),PR_RLL(PC_10);//フォトリフレクタデジタル読み取り
@@ -16,14 +21,12 @@ DigitalIn EN_L(PC_6),EN_R(PC_8); //車輪1相エンコーダ
 PwmOut MD1_1(PA_8),MD1_2(PA_9),MD2_1(PA_10),MD2_2(PA_11); //モータードライバー信号
 
 BusIn in(PB_3,PB_5,PB_4,PB_15,PB_1,PB_2); //エンコーダプルアップ設定用
-QEI E_L(PB_3,PB_5,PB_4,1000,QEI::X2_ENCODING); //左接地エンコーダ
-QEI E_R(PB_15,PB_1,PB_2,1000,QEI::X2_ENCODING); //右接地エンコーダ
-
+QEI encL(PB_3,PB_5,PB_4,1000,QEI::X2_ENCODING); //左接地エンコーダ
+QEI encR(PB_15,PB_1,PB_2,1000,QEI::X2_ENCODING); //右接地エンコーダ
 
 /*Line sensor All digital
 DigitalIn PR_FR(PC_0),PR_FL(PB_0),PR_RR(PC_2),PR_RL(PC_3),PR_FC(PC_1),PR_FLL(PA_4),PR_FRR(PA_1),PR_RC(PB_7),PR_RRR(PC_12),PR_RLL(PC_10),
 */
-
 
 void m(float m1,float m2){ //TB6643KQ モータードライバ関数
 /*
