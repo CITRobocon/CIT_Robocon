@@ -28,7 +28,7 @@
     
             controller.followVirtualLine(p, &odometry);
             controller.invert();
-            controller.followWhiteLine();
+            controller.followBrightLine();
     
             printf ("FINISH!\n\r");
             while(1);
@@ -128,7 +128,7 @@ public:
         dir = 1;
     }
 
-    void followWhiteLine (void){
+    void followBrightLine (void){
         Kp_1 = 1.0, Ki_1 = 0.010, Kd_1 = 0.00010;
         Kp_2 = 0.0, Ki_2 = 0.0, Kd_2 = 0.0;
         ei_1 = 0.0;
