@@ -68,8 +68,9 @@ class Odometry{
     double dl = (double)(enc_l->getPulses())/ppr*gear_ratio*2.0*PI*wheel_radius;
     double dtheta = (dr-dl)/length;
 
-    x += 0.50*(dr+dl)*cos(ang+dtheta/2.0);
-    z += 0.50*(dr+dl)*sin(ang+dtheta/2.0);
+    x += 0.50*(dr+dl)*cosf(ang+dtheta/2.0);
+    z += 0.50*(dr+dl)*sinf(ang+dtheta/2.0);
+    
     ang += dtheta;
     if (ang < -PI)
      ang += 2.0*PI;
@@ -83,7 +84,8 @@ class Odometry{
 public:
   double x, z, ang;
 
-  Odometry (class QEI *qei1, class QEI *qei2, double PPR, double ratio, double radius, double l, double T){
+  Odometry (QEI *qei1, QEI *qei2, double PPR, double ratio, double radius, double l, double T){
+    in.mode(PullUp);
     enc_r = qei1;
     enc_l = qei2;
     gear_ratio = ratio;
@@ -93,7 +95,7 @@ public:
     period = T;
   }
 
-  void setPositon (double x0, double z0, double ang0){
+  void setPosition (double x0, double z0, double ang0){
     x = x0;
     z = z0;
     ang = ang0;
