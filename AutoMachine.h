@@ -6,17 +6,16 @@
 
 /*defines*/
 /*********************************LED******************************************/
-DigitalOut BLED1(PH_1);
-DigitalOut BLED2(PH_0);
-DigitalOut RLED(PC_15);
-DigitalOut GLED(PC_14);
+DigitalOut BLED1(PA_14);
+DigitalOut BLED2(PB_15);   
+DigitalOut RLED(PC_13);
+DigitalOut GLED(PB_7);
 
 /*********************************switch***************************************/
-DigitalIn SW(PC_13);
-DigitalIn ASW(PB_7);
-DigitalIn OSW1(PC_13);
-DigitalIn OSW2(PB_15);
-DigitalIn OSW3(PA_14);
+DigitalIn ASW(PC_15);
+DigitalIn OSW1(PH_1);
+DigitalIn OSW2(PH_0);
+DigitalIn OSW3(PC_14);
 
 /**********************************sensor**************************************/
 //PhotoReflector
