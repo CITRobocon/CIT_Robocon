@@ -1,3 +1,6 @@
+#ifndef AUTOMACHINE_H
+#define AUTOMACHINE_H
+
 #include"mbed.h"
 
 /*defines*/
@@ -32,7 +35,4 @@ PwmOut servo3(PB_6);
 /********************************serial****************************************/
 Serial MD(PA_9,PA_10);
 
-
-int main(){
-    
-}
+#endif //AUTOMACHINE_H
