@@ -85,7 +85,6 @@ public:
    double x, z, ang;
 
    Odometry (QEI *qei1, QEI *qei2, double PPR, double ratio, double radius, double l, double T){
-      in.mode(PullUp);
       enc_r = qei1;
       enc_l = qei2;
       gear_ratio = ratio;
