@@ -31,6 +31,7 @@ AnalogIn R2(PA_0);
 //Encoder
 QEI ENC_R (PB_3, PA_2, PA_3, 2000);
 QEI ENC_L (PB_5, PB_4, PB_10, 2000);
+BusIn qei_in (PB_3, PA_2, PA_3, PB_5, PB_4, PB_10);
 
 /*********************************servo*****************************************/
 PwmOut servo1(PA_8);
