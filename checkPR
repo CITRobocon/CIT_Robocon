@@ -1,0 +1,13 @@
+#include "mbed.h"
+#include "AutoMachine.h"
+
+Serial PC(USBTX, USBRX);
+
+int main (void){
+    while(1){
+         PC.printf ("                %f  %f\n\r", BL.read(), BR.read());
+         PC.printf ("%f                              %f\n\r", R1.read(), FR.read());
+         PC.printf ("%f                              %f\n\r", R2.read(), FL.read());
+         PC.printf ("                %f  %f\n\r", L2.read(), L1.read());
+    }
+}
