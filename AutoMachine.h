@@ -12,7 +12,7 @@
 
 /*********************************LED******************************************/
 DigitalOut BLED1(PA_14);
-DigitalOut BLED2(PA_15);   
+DigitalOut BLED2(PA_15);
 DigitalOut RLED(PC_13);
 DigitalOut GLED(PB_7);
 
@@ -24,13 +24,17 @@ DigitalIn ASW(PC_10);
 
 /*********************************sensor***************************************/
 //PhotoReflector
+//     FL FR
+//  L1       R1
+//  L2       R2
+//     BL BR
 AnalogIn FL(PC_2);
 AnalogIn FR(PC_3);
 AnalogIn L1(PC_0);
 AnalogIn L2(PC_1);
 AnalogIn BL(PB_0);
 AnalogIn BR(PA_4);
-AnalogIn R1(PA_1);
+AnalogIn R1(PA_1); //Unavailable
 AnalogIn R2(PA_0);
 
 //GatiasariOkiba
@@ -50,4 +54,3 @@ PwmOut servo3(PB_6);
 Serial MD(PA_9,PA_10);
 
 #endif //AUTOMACHINE_H
-
