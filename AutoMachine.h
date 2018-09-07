@@ -1,10 +1,15 @@
-#ifndef AUTOMACHINE_H
 #define AUTOMACHINE_H
 
 #include "mbed.h"
 #include "QEI.h"
 
 /*defines*/
+/*********************************machine**************************************/
+#define WHEEL_DISTANCE 28
+#define WHEEL_RADIUS 272.476
+#define ENCODER_DISTANCE 405.6
+#define ENCODER_RADIUS 25.5
+
 /*********************************LED******************************************/
 DigitalOut BLED1(PA_14);
 DigitalOut BLED2(PA_15);   
@@ -12,13 +17,12 @@ DigitalOut RLED(PC_13);
 DigitalOut GLED(PB_7);
 
 /*********************************switch***************************************/
-
 DigitalIn OSW1(PH_1);
 DigitalIn OSW2(PC_12);
 DigitalIn OSW3(PA_13);
 DigitalIn ASW(PC_10);
 
-/**********************************sensor**************************************/
+/*********************************sensor***************************************/
 //PhotoReflector
 AnalogIn FL(PC_2);
 AnalogIn FR(PC_3);
@@ -37,13 +41,13 @@ QEI ENC_R (PB_3, PA_2, PA_3, 2000);
 QEI ENC_L (PB_5, PB_4, PB_10, 2000);
 BusIn qei_in (PB_3, PA_2, PA_3, PB_5, PB_4, PB_10);
 
-/*********************************servo*****************************************/
+/*********************************servo****************************************/
 PwmOut servo1(PA_8);
 PwmOut servo2(PC_7);
 PwmOut servo3(PB_6);
 
-/********************************serial****************************************/
+/*********************************serial***************************************/
 Serial MD(PA_9,PA_10);
 
-
 #endif //AUTOMACHINE_H
+
