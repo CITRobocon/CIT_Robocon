@@ -5,8 +5,8 @@
 
 /*defines*/
 /*********************************machine**************************************/
-#define WHEEL_DISTANCE 28
-#define WHEEL_RADIUS 272.476
+#define WHEEL_DISTANCE 272.476
+#define WHEEL_RADIUS 28
 #define ENCODER_DISTANCE 405.6
 #define ENCODER_RADIUS 25.5
 
