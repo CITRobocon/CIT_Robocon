@@ -46,9 +46,9 @@ QEI ENC_L (PB_5, PB_4, PB_10, 2000);
 BusIn qei_in (PB_3, PA_2, PA_3, PB_5, PB_4, PB_10);
 
 /*********************************servo****************************************/
-PwmOut servo1(PA_8);
-PwmOut servo2(PC_7);
-PwmOut servo3(PB_6);
+PwmOut servo1(PA_8); //catch
+PwmOut servo2(PC_7); //elevate
+PwmOut servo3(PB_6); //table
 
 /*********************************serial***************************************/
 Serial MD(PA_9,PA_10);
