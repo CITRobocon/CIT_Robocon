@@ -7,15 +7,16 @@
 /*defines*/
 /*********************************LED******************************************/
 DigitalOut BLED1(PA_14);
-DigitalOut BLED2(PB_15);   
+DigitalOut BLED2(PA_15);   
 DigitalOut RLED(PC_13);
 DigitalOut GLED(PB_7);
 
 /*********************************switch***************************************/
-DigitalIn ASW(PC_15);
+
 DigitalIn OSW1(PH_1);
-DigitalIn OSW2(PH_0);
-DigitalIn OSW3(PC_14);
+DigitalIn OSW2(PC_12);
+DigitalIn OSW3(PA_13);
+DigitalIn ASW(PC_10);
 
 /**********************************sensor**************************************/
 //PhotoReflector
@@ -27,6 +28,9 @@ AnalogIn BL(PB_0);
 AnalogIn BR(PA_4);
 AnalogIn R1(PA_1);
 AnalogIn R2(PA_0);
+
+//GatiasariOkiba
+AnalogIn GA(PA_6);
 
 //Encoder
 QEI ENC_R (PB_3, PA_2, PA_3, 2000);
@@ -40,5 +44,6 @@ PwmOut servo3(PB_6);
 
 /********************************serial****************************************/
 Serial MD(PA_9,PA_10);
+
 
 #endif //AUTOMACHINE_H
