@@ -27,17 +27,17 @@ DigitalIn ASW(PC_10);
 /**********************************sensor**************************************/
 //PhotoReflector
 //     FL FR
-//  L1       R1
-//  L2       R2
+//  LF       RF
+//  LB       RB
 //     BL BR
-AnalogIn FL(PC_2);
-AnalogIn FR(PC_3);
-AnalogIn L1(PC_0);
-AnalogIn L2(PC_1);
-AnalogIn BL(PB_0);
-AnalogIn BR(PA_4);
-AnalogIn R1(PA_1);//Unavailable
-AnalogIn R2(PA_0);
+AnalogIn FL(PB_0); 
+AnalogIn FR(PA_4); 
+AnalogIn LF(PA_1);
+AnalogIn LB(PA_0);
+AnalogIn RF(PC_2);//Unavailable
+AnalogIn RB(PC_3);
+AnalogIn BR(PC_0); 
+AnalogIn BL(PC_1); 
 
 //GatiasariOkiba
 AnalogIn GA(PA_6);
