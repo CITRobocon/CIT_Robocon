@@ -52,8 +52,7 @@ PwmOut servo1(PA_8);//grab
 PwmOut servo2(PC_7);//
 PwmOut servo3(PB_6);//table
 
-/********************************serial****************************************/
-Serial MD(PA_9,PA_10);
-
+/********************************MD****************************************/
+PwmOut MD_L(PA_9),MD_R(PA_10);
 
 #endif //AUTOMACHINE_H
