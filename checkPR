@@ -5,9 +5,7 @@ Serial PC(USBTX, USBRX);
 
 int main (void){
     while(1){
-         PC.printf ("                %f  %f\n\r", BL.read(), BR.read());
-         PC.printf ("%f                              %f\n\r", R1.read(), FR.read());
-         PC.printf ("%f                              %f\n\r", R2.read(), FL.read());
-         PC.printf ("                %f  %f\n\r", L2.read(), L1.read());
+         PC.printf ("                %f  %f\n%f                              %f\n%f                              %f\n                %f  %f\n\r"
+                    , FL.read(), FR.read(), LF.read(), RF.read(), LB.read(), RB.read(), BL.read(), BR.read());
     }
 }
