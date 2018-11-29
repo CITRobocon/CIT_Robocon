@@ -39,6 +39,10 @@ int main(){
     
     waitPushASW();
     
+    //ボタンを押した直後にオドメトリを取り始めるように変更
+    odometry.setPosition(206, 206, -PI+0.0000000010);
+    odometry.start();
+    
     if ((OSW1&1) != 1){
         //init
         grabA();
@@ -48,9 +52,6 @@ int main(){
     
         while(!onGA()){wait(0.010);}; 
         wait(2.0);
-    
-        odometry.setPosition(206, 206, -PI+0.0000000010);
-        odometry.start();
     
         //rotate
         writeMotor(0.4f, -0.4f);
