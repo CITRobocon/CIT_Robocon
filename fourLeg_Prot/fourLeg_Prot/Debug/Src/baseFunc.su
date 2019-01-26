@@ -1,4 +1,0 @@
-baseFunc.c:14:6:leg1_setJointAngle_rad	24	static
-baseFunc.c:20:6:leg2_setJointAngle_rad	24	static
-baseFunc.c:26:6:leg3_setJointAngle_rad	24	static
-baseFunc.c:32:6:leg4_setJointAngle_rad	32	static

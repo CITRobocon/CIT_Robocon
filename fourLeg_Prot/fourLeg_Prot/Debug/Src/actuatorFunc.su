@@ -1,8 +1,0 @@
-actuatorFunc.c:33:6:leg1_setJointAngle_rad	24	static
-actuatorFunc.c:39:6:leg2_setJointAngle_rad	24	static
-actuatorFunc.c:45:6:leg3_setJointAngle_rad	24	static
-actuatorFunc.c:51:6:leg4_setJointAngle_rad	32	static
-actuatorFunc.c:58:6:leg1_setPosition	64	static
-actuatorFunc.c:73:6:leg2_setPosition	64	static
-actuatorFunc.c:88:6:leg3_setPosition	64	static
-actuatorFunc.c:103:6:leg4_setPosition	64	static
