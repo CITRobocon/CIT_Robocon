@@ -45,6 +45,14 @@ vec4 num2vec4 (double v1, double v2, double v3, double v4){
 	return vec;
 }
 
+vec4 cubicEq_LaGrange (double p1, double p2, double p3, double p4){
+	vec4 coes;
+	coes.v1 = (-9*p1 + 27*p2 - 27*p3 + 9*p4)/2.0;
+	coes.v2 = (18*p1 - 45*p2 + 36*p3 - 9*p4)/2.0;
+	coes.v3 = (-11*p1 + 18*p2 - 9*p3 + 2*p4)/2.0;
+	coes.v4 = p1;
+	return coes;
+}
 
 vec4 cubicCurve_bezier (double p1, double p2, double p3, double p4){
 	vec4 coes;
@@ -82,21 +90,8 @@ double cubicCurve_get_curvRad (vec4 coes_x, vec4 coes_y, double u){
 }
 
 double cubicCurve_get_nearVar (vec4 coes_x, vec4 coes_y, vec2 cp, double u){
-	double kc[7] = {};
+	double kc[6] = {};
 	double c_primeprime;
-
-	/*
-	kc[0] = coes_x.v1*coes_x.v1 + coes_y.v1*coes_y.v1;
-	kc[1] = 2.0*(coes_x.v1*coes_x.v2 + coes_y.v1*coes_y.v2);
-	kc[2] = 2.0*(coes_x.v1*coes_x.v3 + coes_x.v2*coes_x.v2
-			     + coes_y.v1*coes_y.v3 + coes_y.v2*coes_y.v2);
-	kc[3] = 2.0*(coes_x.v1*(coes_x.v4-cp.v1) + coes_x.v2*coes_x.v3
-			     + coes_y.v1*(coes_y.v4-cp.v2) + coes_y.v2*coes_y.v3);
-	kc[4] = 2.0*coes_x.v2*(coes_x.v4-cp.v1) + coes_x.v3*coes_x.v3
-			 + 2.0*coes_y.v2*(coes_y.v4-cp.v2) + coes_y.v3*coes_y.v3;
-	kc[5] = 2.0*(coes_x.v3*(coes_x.v4-cp.v1) + coes_y.v3*(coes_y.v4-cp.v2));
-	kc[6] = (coes_x.v4-cp.v1)*(coes_x.v4-cp.v1) + (coes_y.v4-cp.v2)*(coes_y.v4-cp.v2);
-	*/
 
 	kc[0] = 3.0*(coes_x.v1*coes_x.v1 + coes_y.v1*coes_y.v1);
 	kc[1] = 5.0*(coes_x.v1*coes_x.v2 + coes_y.v1*coes_y.v2);

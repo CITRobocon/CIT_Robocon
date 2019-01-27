@@ -17,7 +17,6 @@ extern const double  WHEEL_RADIUS;
 extern const double  ENCODER_DISTANCE;
 extern const double  ENCODER_RADIUS;
 
-
 volatile unsigned char _control_state = 0;
 
 volatile double _control_t_av_wheel_r = 0.0, _control_t_av_wheel_l = 0.0;
@@ -25,6 +24,7 @@ volatile double _control_av_wheel_r_ep = 0.0, _control_av_wheel_l_ep = 0.0;
 volatile double _control_av_wheel_r_ei = 0.0, _control_av_wheel_l_ei = 0.0;
 
 volatile vec4 _control_t_cubicCurve_coes_x, _control_t_cubicCurve_coes_y;
+volatile double _control_cubicCurve_vel[5] = {};
 
 volatile double _control_t_av_throwingArm = 0.0;
 volatile double _control_av_throwingArm_ep = 0.0;
@@ -41,9 +41,15 @@ unsigned char control_av_wheel_start (double avr, double avl){
 	return (_control_state |= 0x01);
 }
 
-unsigned char control_follow_cubicCurve_start (vec4 coes_x, vec4 coes_y){
+unsigned char control_follow_cubicCurve_start (vec4 coes_x, vec4 coes_y, double v0, double v1, double v2, double v3, double v4){
 	_control_t_cubicCurve_coes_x = coes_x;
 	_control_t_cubicCurve_coes_y = coes_y;
+
+	_control_cubicCurve_vel[0] = v0;
+	_control_cubicCurve_vel[1] = v1;
+	_control_cubicCurve_vel[2] = v2;
+	_control_cubicCurve_vel[3] = v3;
+	_control_cubicCurve_vel[4] = v4;
 
 	return (_control_state |= 0x02);
 }
@@ -107,13 +113,18 @@ void control_av_wheel (void){
 
 void control_follow_cubicCurve (void){
 	static double u = 0.0;
+	static int vel_grad = 0;
 
-	const double fbgain_phi = 0.10, fbgain_y = 1.0, v = 2.0*PI*WHEEL_RADIUS;
-
+	const double v = (_control_cubicCurve_vel[vel_grad]+_control_cubicCurve_vel[vel_grad+1]*(4.0*u-vel_grad));
+	const double fbgain_phi = 0.10, fbgain_y = 1.0/v;
 	vec2 cp, t_cp;
 	cp = num2vec2(odometry_get_x(), odometry_get_y());
 
 	u = cubicCurve_get_nearVar(_control_t_cubicCurve_coes_x, _control_t_cubicCurve_coes_y, cp, u);
+
+	if (4.0*u-vel_grad > 1.0)
+		vel_grad++;
+
 	t_cp = cubicCurve_get_point(_control_t_cubicCurve_coes_x, _control_t_cubicCurve_coes_y, u);
 
 	volatile double d_phi = odometry_get_angle() - cubicCurve_get_vecAngle(_control_t_cubicCurve_coes_x, _control_t_cubicCurve_coes_y, u);
@@ -131,12 +142,12 @@ void control_follow_cubicCurve (void){
     	ff = v/curve_radius*WHEEL_DISTANCE/2.0;
 
     if (u < 1.0)
-    	//led2_write(1);
     	control_av_wheel_start ((v+ff-fbgain_phi*d_phi-fbgain_y*d_y)/WHEEL_RADIUS, (v-ff+fbgain_phi*d_phi+fbgain_y*d_y)/WHEEL_RADIUS);
     else{
     	control_av_wheel_end();
     	control_follow_cubicCurve_end();
     	u = 0.0;
+    	vel_grad = 0;
     }
 }
 /*

@@ -159,29 +159,6 @@ int main(void)
 
   /* Non loop */
 
-
-  HAL_Delay(1000);
-  motor3_write(0.5);
-  motor4_write(0.5);
-  HAL_Delay(1000);
-  motor3_write(0);
-  motor4_write(0);
-
-
-
-  /*
-  HAL_Delay(2000);
-  for (double i = 0; i < 50; i++){
-	  control_av_wheel_start(i/10*PI, i/10*PI);
-	  HAL_Delay(50);
-  }
-  HAL_Delay(1000);
-  for (double i = 49; i > -1; i--){
-	  control_av_wheel_start(i/10*PI, i/10*PI);
-	  HAL_Delay(50);
-  }
-  */
-
   /*
   odometry_set_position(0.0, 0.0, PI/2.0);
   vec4 coes_x, coes_y;

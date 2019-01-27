@@ -28,7 +28,7 @@ vec2 num2vec2 (double, double);
 vec4 arr2vec4 (double*);
 vec4 num2vec4 (double, double, double, double);
 
-
+vec4 cubicEq_LaGrange (double, double, double, double);
 vec4 cubicCurve_bezier (double, double, double, double);
 
 vec2   cubicCurve_get_point (vec4, vec4, double);
