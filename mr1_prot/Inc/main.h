@@ -63,8 +63,9 @@
 #define LED_THREE_2_GPIO_Port GPIOC
 #define LED_THREE_1_Pin GPIO_PIN_8
 #define LED_THREE_1_GPIO_Port GPIOC
-#define PHOTO_INT_Pin GPIO_PIN_9
-#define PHOTO_INT_GPIO_Port GPIOC
+#define PR_EVENT_Pin GPIO_PIN_9
+#define PR_EVENT_GPIO_Port GPIOC
+#define PR_EVENT_EXTI_IRQn EXTI9_5_IRQn
 #define LED2_Pin GPIO_PIN_12
 #define LED2_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
