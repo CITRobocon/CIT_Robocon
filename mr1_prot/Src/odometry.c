@@ -13,11 +13,6 @@
 #include "body.h"
 #include "basic_operations.h"
 
-extern const double  WHEEL_DISTANCE;
-extern const double  WHEEL_RADIUS;
-extern const double  ENCODER_DISTANCE;
-extern const double  ENCODER_RADIUS;
-
 volatile double _odometry_x = 0.0;
 volatile double _odometry_y = 0.0;
 volatile double _odometry_angle = 0.0;

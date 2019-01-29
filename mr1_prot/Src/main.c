@@ -115,8 +115,8 @@ int main(void)
   /* USER CODE BEGIN 1 */
   //volatile long i_b;
   xdev_out(uart_putc);
-  double x, y, angle;
-  double vr, vl;
+  volatile double x, y, angle;
+  volatile double av;
 
   /* USER CODE END 1 */
 
@@ -126,7 +126,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  //motor2_write(0.0);
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -158,32 +158,41 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim7);
 
   /* Non loop */
-
-  /*
-  odometry_set_position(0.0, 0.0, PI/2.0);
+  HAL_Delay(1500);
+  odometry_set_position(-0.615, 0.5, PI);
   vec4 coes_x, coes_y;
-  coes_x = cubicCurve_bezier(0.0, 0.0, 0.90, 0.90);
-  coes_y = cubicCurve_bezier(0.0, 0.90, 0.90, 1.80);
-  control_follow_cubicCurve_start(coes_x, coes_y);
-  while ((control_get_state()&0x02) == 0x02){HAL_Delay(1);}
+
+  coes_x = cubicCurve_bezier(-0.615, -2.2, -2.2, -1.225);
+  coes_y = cubicCurve_bezier(0.5, 0.5, 2.5, 2.75);
+  control_follow_cubicCurve_start(coes_x, coes_y, 0.5, 1.0, 1.0, 1.0, 1.0);
+
+  coes_x = cubicCurve_bezier(-1.225, -0.3, -0.3, -1.225);
+  coes_y = cubicCurve_bezier(2.75, 3.25, 3.75, 4.25);
+  while ((control_get_state()&0x02) == 0x02){HAL_Delay(10);}
+  control_follow_cubicCurve_start(coes_x, coes_y, 1.0, 1.0, 1.0, 1.0, 1.0);
+
+  coes_x = cubicCurve_bezier(-1.225, -2.0, -1.225, -1.225);
+  coes_y = cubicCurve_bezier(4.25, 4.75, 5.5, 8.0);
+  while ((control_get_state()&0x02) == 0x02){HAL_Delay(10);}
+  control_follow_cubicCurve_start(coes_x, coes_y, 1.0, 1.0, 1.0, 1.0, 0.5);
+
+  while ((control_get_state()&0x02) == 0x02){HAL_Delay(10);}
   control_av_wheel_start(0.0, 0.0);
   led2_write(1);
-  */
+
 
   /* USER CODE END 2 */
-
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  //arm_angle = enc_arm_getAngle_rad();
 	  x = odometry_get_x();
 	  y = odometry_get_y();
 	  angle = odometry_get_angle();
-	  vr = odometry_get_av_rightwheel();
-	  vl = odometry_get_av_leftwheel();
+	  av = enc_arm_getAV();
   /* USER CODE END WHILE */
+
   /* USER CODE BEGIN 3 */
 
   }
@@ -509,11 +518,11 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, LED1_Pin|LED_THREE_2_Pin|LED_THREE_1_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : B1_Pin */
-  GPIO_InitStruct.Pin = B1_Pin;
+  /*Configure GPIO pins : B1_Pin PR_EVENT_Pin */
+  GPIO_InitStruct.Pin = B1_Pin|PR_EVENT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD2_Pin LED2_Pin */
   GPIO_InitStruct.Pin = LD2_Pin|LED2_Pin;
@@ -529,17 +538,15 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PHOTO_INT_Pin */
-  GPIO_InitStruct.Pin = PHOTO_INT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(PHOTO_INT_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pins : SWITCH2_Pin SWITCH_Pin SWITCH3_Pin */
   GPIO_InitStruct.Pin = SWITCH2_Pin|SWITCH_Pin|SWITCH3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 

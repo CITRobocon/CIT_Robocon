@@ -20,7 +20,8 @@ short enc_right_getAndResetCount(void);
 short enc_left_getAndResetCount(void);
 
 void enc_arm_updateCount(void);
-void enc_arm_setAngle_0rad(void);
+void enc_arm_setAngle_rad(double);
+double enc_arm_getAV (void);
 double enc_arm_getAngle_rad(void);
 
 // get switches' value

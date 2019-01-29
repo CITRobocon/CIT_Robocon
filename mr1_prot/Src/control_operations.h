@@ -13,7 +13,7 @@
 
 
 unsigned char control_av_wheel_start (double, double);
-unsigned char control_follow_cubicCurve_start (vec4, vec4);
+unsigned char control_follow_cubicCurve_start (vec4, vec4, double, double, double, double, double);
 unsigned char control_av_throwingArm_start (double);
 
 unsigned char control_av_wheel_end (void);

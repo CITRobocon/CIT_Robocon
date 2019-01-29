@@ -56,22 +56,30 @@ short enc_left_getAndResetCount (void){
 }
 
 volatile long _enc_arm_count = 0;
+volatile double _enc_arm_av;
 
 void enc_arm_updateCount (void){
+	const double period = 0.020, ppr = 400*84;
+
 	volatile const uint16_t bits = TIM4->CNT;
 	const short val = ((bits>>15) ? -(0xFFFF-bits)-1 : bits);
 
 	TIM4->CNT -= val;
 	_enc_arm_count += val;
+	_enc_arm_av = (double)(val)/ppr*2.0*PI/period;
 }
 
-void enc_arm_setAngle_0rad (void){
+void enc_arm_setAngle_rad (double angle){
 	TIM4->CNT = 0;
-	_enc_arm_count = 0;
+	_enc_arm_count = angle;
+}
+
+double enc_arm_getAV (void){
+	return _enc_arm_av;
 }
 
 double enc_arm_getAngle_rad (void){
-	const double ppr = 4000;
+	const double ppr = 400*84;
 	return (_enc_arm_count/ppr*2.0*PI);
 }
 
@@ -86,10 +94,6 @@ int sw2_getState (void){
 
 int sw3_getState (void){
 	return HAL_GPIO_ReadPin(GPIOC, SWITCH3_Pin);
-}
-
-int PR_getState (void){
-	return HAL_GPIO_ReadPin(GPIOC, PHOTO_INT_Pin);
 }
 
 // write led

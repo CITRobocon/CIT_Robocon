@@ -58,7 +58,6 @@ void NMI_Handler(void)
 
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-
   /* USER CODE END NonMaskableInt_IRQn 1 */
 }
 
@@ -196,6 +195,21 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+* @brief This function handles EXTI line[9:5] interrupts.
+*/
+void EXTI9_5_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI9_5_IRQn 0 */
+
+  /* USER CODE END EXTI9_5_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
+  /* USER CODE BEGIN EXTI9_5_IRQn 1 */
+  control_av_throwingArm_start(0.0);
+  led3c_write(1,1);
+  /* USER CODE END EXTI9_5_IRQn 1 */
+}
+
+/**
 * @brief This function handles TIM7 global interrupt.
 */
 void TIM7_IRQHandler(void)
@@ -210,11 +224,11 @@ void TIM7_IRQHandler(void)
   static int counter = 0;
 
   // per 10ms|0.010s
-  enc_arm_updateCount();
 
   // per 20ms|0.020s
-　if (counter%2 == 0){
-  	  odometry_update();
+  if (counter%2 == 0){
+	  odometry_update();
+	  enc_arm_updateCount();
   }
 
   // per 40ms|0.040s
@@ -224,10 +238,8 @@ void TIM7_IRQHandler(void)
 		  control_av_wheel();
 	  if ((control_state&0x02) == 0x02)
 		  control_follow_cubicCurve();
-	  /*
 	  if ((control_state&0b100) == 0x04)
 		  control_av_throwingArm();
-	  */
   }
 
   // per 1s
