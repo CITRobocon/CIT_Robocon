@@ -39,4 +39,6 @@ double cubicCurve_get_nearVar (vec4, vec4, vec2, double);
 
 double saturation (double, double, double);
 
+double sinc (double);
+
 #endif /* MATH_OPERATIONS_H_ */

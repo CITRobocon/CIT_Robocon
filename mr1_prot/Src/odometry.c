@@ -59,8 +59,11 @@ void odometry_update (void){
 
 	d_angle = (double)(d_enc_r-d_enc_l)/ppr*2.0*PI*ENCODER_RADIUS/ENCODER_DISTANCE;
 
-	_odometry_x += (double)(d_enc_r+d_enc_l)/2.0/ppr*2.0*PI*ENCODER_RADIUS*cos(_odometry_angle+d_angle/2.0);
-	_odometry_y += (double)(d_enc_r+d_enc_l)/2.0/ppr*2.0*PI*ENCODER_RADIUS*sin(_odometry_angle+d_angle/2.0);
+	//_odometry_x += (double)(d_enc_r+d_enc_l)/2.0/ppr*2.0*PI*ENCODER_RADIUS*cos(_odometry_angle+d_angle/2.0);
+	//_odometry_y += (double)(d_enc_r+d_enc_l)/2.0/ppr*2.0*PI*ENCODER_RADIUS*sin(_odometry_angle+d_angle/2.0);
+	_odometry_x += (double)(d_enc_r+d_enc_l)/2.0/ppr*2.0*PI*ENCODER_RADIUS*cos(_odometry_angle+d_angle/2.0)*sinc(d_angle/2.0);
+	_odometry_y += (double)(d_enc_r+d_enc_l)/2.0/ppr*2.0*PI*ENCODER_RADIUS*sin(_odometry_angle+d_angle/2.0)*sinc(d_angle/2.0);
+
 	_odometry_angle += d_angle;
 	if (_odometry_angle > PI)
 		_odometry_angle -= 2.0*PI;
