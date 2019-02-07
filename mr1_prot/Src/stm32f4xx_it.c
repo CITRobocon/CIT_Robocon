@@ -224,10 +224,12 @@ void TIM7_IRQHandler(void)
   static int counter = 0;
 
   // per 10ms|0.010s
-
+  if (counter%1 == 0){
+	  odometry_update();
+  }
+	
   // per 20ms|0.020s
   if (counter%2 == 0){
-	  odometry_update();
 	  enc_arm_updateCount();
   }
 
