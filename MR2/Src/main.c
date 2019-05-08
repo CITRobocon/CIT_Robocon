@@ -148,7 +148,7 @@ void posture4(){
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,1520-680);//FR3
 
 	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_2,1540-680);//BL1
-;	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,1520+620);//BL2
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,1520+620);//BL2
 	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_1,1480+660);//BL3
 
 	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_3,1470+640);//BR1
