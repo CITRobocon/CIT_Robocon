@@ -7,7 +7,7 @@
 
 #include "leg_operations.h"
 
-// functions for initialize structures "Leg"
+// functions for initialization
 void leg_initPWM_KEY_HPTR (Leg *leg, TIM_HandleTypeDef *hptr1, TIM_HandleTypeDef *hptr2, TIM_HandleTypeDef *hptr3){
 	PwmKey key[3] = {{hptr1, leg->pwm_key[JOINT1].channel}, {hptr2, leg->pwm_key[JOINT2].channel}, {hptr3, leg->pwm_key[JOINT3].channel}};
 	for (int i = 0; i < 3; i++)
@@ -44,7 +44,7 @@ void leg_initPOSTURE_DIR (Leg *leg, int m, int n){
 }
 
 
-// functions for control legs
+// functions for leg
 void leg_setJointAngle_rad (Leg *leg, const double ang1, const double ang2, const double ang3){
 	leg->angle[JOINT1] = ang1;
 	leg->angle[JOINT2] = ang2;
