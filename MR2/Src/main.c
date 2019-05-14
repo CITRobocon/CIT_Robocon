@@ -41,18 +41,22 @@
 #include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN Includes */
+#include "xprintf.h"
+#include "walk.h"
+#include "sensors.h"
 
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
-
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim7;
 
+UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -63,12 +67,13 @@ UART_HandleTypeDef huart2;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
-static void MX_SPI1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
-                                    
+static void MX_UART5_Init(void);
+static void MX_USART3_UART_Init(void);
+static void MX_TIM7_Init(void);                                    
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
                                 
@@ -84,6 +89,21 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 TIM_MasterConfigTypeDef sMasterConfig;
 TIM_OC_InitTypeDef sConfigOC;
 
+void uart_putc(uint8_t c)
+{
+	char buf[1];
+	buf[0] = c;
+	HAL_UART_Transmit(&huart2, (uint8_t *)buf, sizeof(buf), 0xFFFF);
+}
+
+void uart_puts(char *str)
+{
+	while (*str) {
+		uart_putc(*str++);
+	}
+}
+
+/*
 void posture1(){
 	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_4,1510);//FL1
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4,1520);//FL2
@@ -155,9 +175,18 @@ void posture4(){
 	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_4,1450-680);//BR2
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,1450-670);//BR3
 }
+*/
 
+//extern Leg leg[4];
 
-
+uint8_t uart_getc_32(void)
+{
+	uint8_t c = 0;
+	char buf[1];
+	HAL_UART_Receive(&huart3, (uint8_t *)buf, sizeof(buf), 0xFFFF);
+	c = buf[0];
+	return c;
+}
 
 /* USER CODE END 0 */
 
@@ -169,6 +198,7 @@ void posture4(){
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+  xdev_out(uart_putc);
 
   /* USER CODE END 1 */
 
@@ -191,11 +221,13 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  MX_SPI1_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
+  MX_UART5_Init();
+  MX_USART3_UART_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
@@ -211,39 +243,81 @@ int main(void)
   HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
 
+  HAL_TIM_Base_Start_IT(&htim7);
+
+  /* Non loop */
+  body_init();
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
+
+  /*
+  leg_setVel(&leg[0], -0.50, 0.0, 0.0);
+  leg_setVel(&leg[1], -0.50, 0.0, 0.0);
+  leg_setVel(&leg[2], -0.50, 0.0, 0.0);
+  leg_setVel(&leg[3], -0.50, 0.0, 0.0);
+
+  while(1){
+	  leg_setAcc(&leg[0], 1.0, 0.0, 0.0);
+	  leg_movement(&leg[0]);
+	  leg_move(&leg[0]);
+
+	  leg_setAcc(&leg[1], 1.0, 0.0, 0.0);
+	  leg_movement(&leg[1]);
+	  leg_move(&leg[1]);
+
+	  leg_setAcc(&leg[2], 1.0, 0.0, 0.0);
+	  leg_movement(&leg[2]);
+	  leg_move(&leg[2]);
+
+	  leg_setAcc(&leg[3], 1.0, 0.0, 0.0);
+	  leg_movement(&leg[3]);
+	  leg_move(&leg[3]);
+
+	  HAL_Delay(20);
+  }
+  */
+
+  walk_start();
+
+  /*
+  while(1){
+	  x = body_getGP().x;
+	  leg_setVel(&leg[0], -x, 0.0, 0.0);
+	  leg_setVel(&leg[1], -x, 0.0, 0.0);
+	  leg_setVel(&leg[2], -x, 0.0, 0.0);
+	  leg_setVel(&leg[3], -x, 0.0, 0.0);
+
+	  leg_movement(&leg[0]);
+	  leg_movement(&leg[1]);
+	  leg_movement(&leg[2]);
+	  leg_movement(&leg[3]);
+
+	  leg_move(&leg[0]);
+	  leg_move(&leg[1]);
+	  leg_move(&leg[2]);
+	  leg_move(&leg[3]);
+  }*/
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
+  //xprintf ("aaa");
 
   while (1)
   {
 
-	  posture1();
-	  HAL_Delay(1000);
+	  /*
+	  walk_tick();
+	  body_move();
+	  HAL_Delay(20);
+	  */
 
-	  posture2();
-	  HAL_Delay(1000);
+	  //xprintf ("a");
+	  //xprintf ("%d\n", uart_getc_32());
 
-	  posture3();
-	  HAL_Delay(1000);
-
-	  posture4();
-	  HAL_Delay(1000);
-
-	  posture3();
-	  HAL_Delay(1000);
-
-	  posture2();
-	  HAL_Delay(1000);
-
-	  posture1();
-	  HAL_Delay(1000);
-
-
-
-
+	  //pixy_update();
+	  xprintf ("(x,ang) = %d,\t%d   ", (int)pixy_getVecSP_x(), (int)pixy_getVecAng());
+	  xprintf ("\t(r,p,y) = %d,\t%d,\t%d\n\r", (int)gyro_getRoll(), (int)gyro_getPitch(), (int)gyro_getYaw());
 
   /* USER CODE END WHILE */
 
@@ -310,29 +384,6 @@ void SystemClock_Config(void)
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
-}
-
-/* SPI1 init function */
-static void MX_SPI1_Init(void)
-{
-
-  /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_SLAVE;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_HARD_INPUT;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 10;
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
 }
 
 /* TIM1 init function */
@@ -540,6 +591,49 @@ static void MX_TIM4_Init(void)
 
 }
 
+/* TIM7 init function */
+static void MX_TIM7_Init(void)
+{
+
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 10000-1;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 84;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* UART5 init function */
+static void MX_UART5_Init(void)
+{
+
+  huart5.Instance = UART5;
+  huart5.Init.BaudRate = 9600;
+  huart5.Init.WordLength = UART_WORDLENGTH_8B;
+  huart5.Init.StopBits = UART_STOPBITS_1;
+  huart5.Init.Parity = UART_PARITY_NONE;
+  huart5.Init.Mode = UART_MODE_TX_RX;
+  huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart5.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart5) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
 /* USART2 init function */
 static void MX_USART2_UART_Init(void)
 {
@@ -553,6 +647,25 @@ static void MX_USART2_UART_Init(void)
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
   if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* USART3 init function */
+static void MX_USART3_UART_Init(void)
+{
+
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 9600;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -576,6 +689,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_10, GPIO_PIN_RESET);
@@ -591,6 +708,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PA5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PC10 */
   GPIO_InitStruct.Pin = GPIO_PIN_10;

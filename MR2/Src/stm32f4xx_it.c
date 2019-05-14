@@ -36,10 +36,12 @@
 #include "stm32f4xx_it.h"
 
 /* USER CODE BEGIN 0 */
+#include "sensors.h"
 
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern TIM_HandleTypeDef htim7;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -190,6 +192,53 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f4xx.s).                    */
 /******************************************************************************/
+
+/**
+* @brief This function handles TIM7 global interrupt.
+*/
+void TIM7_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM7_IRQn 0 */
+
+  /* USER CODE END TIM7_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim7);
+  /* USER CODE BEGIN TIM7_IRQn 1 */
+  static int counter = 0;
+
+  // per 10ms
+  {
+	  //gyro_update();
+  }
+
+  // per 20ms
+  if (counter%2 == 0){
+
+  }
+
+  if (counter%4 == 0){
+	  //pixy_update();
+	  gyro_update();
+  }
+
+  if (counter%10 == 0){
+
+  }
+
+  // per 1s
+  static double n = 0.0;
+  if (counter%100 == 0){
+	  //body_setLegPos(1, (n=1.0-n)*0.01, 0.0, -0.20);
+	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+  }
+
+  // update count
+  counter++;
+  if (counter >= 100){
+	  counter = 0;
+  }
+
+  /* USER CODE END TIM7_IRQn 1 */
+}
 
 /* USER CODE BEGIN 1 */
 
