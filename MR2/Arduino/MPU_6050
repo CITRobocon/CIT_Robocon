@@ -9,7 +9,7 @@ Madgwick MadgwickFilter;
 #define DELAY 0
 const int d_time = 1;
 
-short roll,pitch,yaw;
+short roll, pitch, yaw;
 
 //送信データ形式
 //[header,header2, roll(上位), roll(下位), pitch(上位), pitch(下位), yaw(上位), yaw(下位)]
@@ -85,7 +85,8 @@ void loop() {
     }
   */
 
-    if (DEBUG != 1) {
+  if (DEBUG != 1) {
+    Serial.write(100); if (DELAY)delay(d_time);
     Serial.write(100); if (DELAY)delay(d_time);
     Serial.write(highByte(roll)); if (DELAY)delay(d_time);
     Serial.write(lowByte(roll)); if (DELAY)delay(d_time);
@@ -95,7 +96,7 @@ void loop() {
     Serial.write(lowByte(yaw)); if (DELAY)delay(d_time);
   }
 
-    if (DEBUG == 1) {
+  if (DEBUG == 1) {
     Serial.print(roll);  Serial.print("("); Serial.print(highByte(roll)); Serial.print(","); Serial.print(lowByte(roll)); Serial.print(")");
     Serial.print(pitch);  Serial.print("("); Serial.print(highByte(pitch)); Serial.print(","); Serial.print(lowByte(pitch)); Serial.print(")");
     Serial.print(yaw);  Serial.print("("); Serial.print(highByte(yaw)); Serial.print(","); Serial.print(lowByte(yaw)); Serial.print(")");
