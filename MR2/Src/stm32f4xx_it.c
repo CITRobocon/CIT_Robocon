@@ -36,12 +36,17 @@
 #include "stm32f4xx_it.h"
 
 /* USER CODE BEGIN 0 */
-#include "sensors.h"
+#include "walk.h"
+#include "body.h"
+#include "xprintf.h"
 
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern TIM_HandleTypeDef htim7;
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim10;
+extern DMA_HandleTypeDef hdma_uart5_rx;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -194,40 +199,104 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-* @brief This function handles TIM7 global interrupt.
+* @brief This function handles DMA1 stream0 global interrupt.
 */
-void TIM7_IRQHandler(void)
+void DMA1_Stream0_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM7_IRQn 0 */
+  /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
 
-  /* USER CODE END TIM7_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim7);
-  /* USER CODE BEGIN TIM7_IRQn 1 */
+  /* USER CODE END DMA1_Stream0_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_uart5_rx);
+  /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
+  //gyro_update();
+
+  /* USER CODE END DMA1_Stream0_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM1 update interrupt and TIM10 global interrupt.
+*/
+void TIM1_UP_TIM10_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 0 */
+
+  /* USER CODE END TIM1_UP_TIM10_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim1);
+  HAL_TIM_IRQHandler(&htim10);
+  /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 1 */
   static int counter = 0;
-
-  // per 10ms
-  {
-	  //gyro_update();
-  }
 
   // per 20ms
   if (counter%2 == 0){
-
-  }
-
-  if (counter%4 == 0){
-	  //pixy_update();
 	  gyro_update();
+	  /*
+	  xprintf ("(r,p,y) = %d,\t%d,\t%d\n", (int)MATH_RAD_TO_DEG(gyro_getRoll())
+			                             , (int)MATH_RAD_TO_DEG(gyro_getPitch())
+										 , (int)MATH_RAD_TO_DEG(gyro_getYaw()));
+	  */
   }
 
+  // per 40ms
+  if (counter%4 == 0){
+	  if (walk_isUnderControl_balance())
+		  walk_control_balance();
+	  body_move();
+  }
+
+  // per 0.1s
   if (counter%10 == 0){
 
   }
 
   // per 1s
-  static double n = 0.0;
   if (counter%100 == 0){
-	  //body_setLegPos(1, (n=1.0-n)*0.01, 0.0, -0.20);
+	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+  }
+
+  // update count
+  counter++;
+  if (counter >= 100){
+	  counter = 0;
+  }
+  /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM6 global interrupt and DAC1, DAC2 underrun error interrupts.
+*/
+void TIM6_DAC_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+
+  /* USER CODE END TIM6_DAC_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim6);
+  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+  static int counter = 0;
+
+  // per 20ms
+  if (counter%2 == 0){
+	  gyro_update();
+	  /*
+	  xprintf ("(r,p,y) = %d,\t%d,\t%d\n", (int)MATH_RAD_TO_DEG(gyro_getRoll())
+			                             , (int)MATH_RAD_TO_DEG(gyro_getPitch())
+										 , (int)MATH_RAD_TO_DEG(gyro_getYaw()));
+	  */
+  }
+
+  // per 40ms
+  if (counter%4 == 0){
+	  if (walk_isUnderControl_balance())
+		  walk_control_balance();
+	  body_move();
+  }
+
+  // per 0.1s
+  if (counter%10 == 0){
+
+  }
+
+  // per 1s
+  if (counter%100 == 0){
 	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
   }
 
@@ -237,7 +306,8 @@ void TIM7_IRQHandler(void)
 	  counter = 0;
   }
 
-  /* USER CODE END TIM7_IRQn 1 */
+
+  /* USER CODE END TIM6_DAC_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

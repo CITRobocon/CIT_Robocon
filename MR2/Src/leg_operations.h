@@ -41,7 +41,7 @@ typedef struct{
 }Leg;
 
 
-// functions for initialization
+// functions for initialize structures "Leg"
 void leg_initPWM_KEY_HPTR (Leg *leg, TIM_HandleTypeDef *hptr1, TIM_HandleTypeDef *hptr2, TIM_HandleTypeDef *hptr3);
 
 void leg_initPWM_KEY_CHANNEL (Leg *leg, uint32_t channel1, uint32_t channel2, uint32_t channel3);
@@ -54,7 +54,7 @@ void leg_initPULSEWIDTH_90DEG (Leg *leg, double n1, double n2, double n3);
 
 void leg_initPOSTURE_DIR (Leg *leg, int m, int n);
 
-// functions for leg
+// functions for control legs
 void leg_setJointAngle_rad (Leg *leg, const double ang1, const double ang2, const double ang3);
 
 void leg_setPos (Leg *leg, const double px, const double py, const double pz);

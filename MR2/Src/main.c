@@ -44,6 +44,7 @@
 #include "xprintf.h"
 #include "walk.h"
 #include "sensors.h"
+#include "math_operations.h"
 
 /* USER CODE END Includes */
 
@@ -52,11 +53,13 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
-TIM_HandleTypeDef htim7;
+TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim10;
 
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
+DMA_HandleTypeDef hdma_uart5_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -66,6 +69,7 @@ UART_HandleTypeDef huart3;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
@@ -73,7 +77,8 @@ static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_UART5_Init(void);
 static void MX_USART3_UART_Init(void);
-static void MX_TIM7_Init(void);                                    
+static void MX_TIM6_Init(void);
+static void MX_TIM10_Init(void);                                    
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
                                 
@@ -101,91 +106,6 @@ void uart_puts(char *str)
 	while (*str) {
 		uart_putc(*str++);
 	}
-}
-
-/*
-void posture1(){
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_4,1510);//FL1
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4,1520);//FL2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,1470);//FL3
-
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,1460);//FR1
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,1450);//FR2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,1520);//FR3
-
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_2,1520);//BL1
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,1520);//BL2
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_1,1480);//BL3
-
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_3,1470);//BR1
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_4,1450);//BR2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,1450);//BR3
-}
-
-void posture2(){
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_4,1510+640);//FL1
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4,1520);//FL2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,1470);//FL3
-
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,1465-670);//FR1
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,1450);//FR2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,1520);//FR3
-
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_2,1540-680);//BL1
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,1520);//BL2
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_1,1480);//BL3
-
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_3,1470+640);//BR1
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_4,1450);//BR2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,1450);//BR3
-}
-
-void posture3(){
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_4,1510+640);//FL1
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4,1520+630);//FL2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,1470);//FL3
-
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,1465-670);//FR1
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,1450-660);//FR2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,1520);//FR3
-
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_2,1540-680);//BL1
-;	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,1520+620);//BL2
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_1,1480);//BL3
-
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_3,1470+640);//BR1
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_4,1450-680);//BR2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,1450);//BR3
-}
-
-void posture4(){
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_4,1510+640);//FL1
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4,1520+630);//FL2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,1470+620);//FL3
-
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,1465-670);//FR1
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,1450-660);//FR2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,1520-680);//FR3
-
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_2,1540-680);//BL1
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,1520+620);//BL2
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_1,1480+660);//BL3
-
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_3,1470+640);//BR1
-	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_4,1450-680);//BR2
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,1450-670);//BR3
-}
-*/
-
-//extern Leg leg[4];
-
-uint8_t uart_getc_32(void)
-{
-	uint8_t c = 0;
-	char buf[1];
-	HAL_UART_Receive(&huart3, (uint8_t *)buf, sizeof(buf), 0xFFFF);
-	c = buf[0];
-	return c;
 }
 
 /* USER CODE END 0 */
@@ -220,6 +140,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
@@ -227,7 +148,8 @@ int main(void)
   MX_TIM4_Init();
   MX_UART5_Init();
   MX_USART3_UART_Init();
-  MX_TIM7_Init();
+  MX_TIM6_Init();
+  MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
@@ -243,81 +165,41 @@ int main(void)
   HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
 
-  HAL_TIM_Base_Start_IT(&htim7);
+  //HAL_TIM_Base_Start_IT(&htim6);
+  HAL_TIM_Base_Start_IT(&htim10);
 
   /* Non loop */
   body_init();
+
+  //walk_start();
+
+
+  body_setLegPos(1, 0.0, 0.0, -0.20);
+  body_setLegPos(2, 0.0, 0.0, -0.10);
+  body_setLegPos(3, 0.0, 0.0, -0.20);
+  body_setLegPos(4, 0.0, 0.0, -0.10);
+  body_move();
+
+  HAL_Delay(2000);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
-
-  /*
-  leg_setVel(&leg[0], -0.50, 0.0, 0.0);
-  leg_setVel(&leg[1], -0.50, 0.0, 0.0);
-  leg_setVel(&leg[2], -0.50, 0.0, 0.0);
-  leg_setVel(&leg[3], -0.50, 0.0, 0.0);
-
-  while(1){
-	  leg_setAcc(&leg[0], 1.0, 0.0, 0.0);
-	  leg_movement(&leg[0]);
-	  leg_move(&leg[0]);
-
-	  leg_setAcc(&leg[1], 1.0, 0.0, 0.0);
-	  leg_movement(&leg[1]);
-	  leg_move(&leg[1]);
-
-	  leg_setAcc(&leg[2], 1.0, 0.0, 0.0);
-	  leg_movement(&leg[2]);
-	  leg_move(&leg[2]);
-
-	  leg_setAcc(&leg[3], 1.0, 0.0, 0.0);
-	  leg_movement(&leg[3]);
-	  leg_move(&leg[3]);
-
-	  HAL_Delay(20);
-  }
-  */
-
-  walk_start();
-
-  /*
-  while(1){
-	  x = body_getGP().x;
-	  leg_setVel(&leg[0], -x, 0.0, 0.0);
-	  leg_setVel(&leg[1], -x, 0.0, 0.0);
-	  leg_setVel(&leg[2], -x, 0.0, 0.0);
-	  leg_setVel(&leg[3], -x, 0.0, 0.0);
-
-	  leg_movement(&leg[0]);
-	  leg_movement(&leg[1]);
-	  leg_movement(&leg[2]);
-	  leg_movement(&leg[3]);
-
-	  leg_move(&leg[0]);
-	  leg_move(&leg[1]);
-	  leg_move(&leg[2]);
-	  leg_move(&leg[3]);
-  }*/
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  //xprintf ("aaa");
+
+  //walk_control_balance_start();
+  //int cnt = 0;
+
+  gyro_start();
 
   while (1)
   {
-
 	  /*
 	  walk_tick();
 	  body_move();
 	  HAL_Delay(20);
 	  */
-
-	  //xprintf ("a");
-	  //xprintf ("%d\n", uart_getc_32());
-
-	  //pixy_update();
-	  xprintf ("(x,ang) = %d,\t%d   ", (int)pixy_getVecSP_x(), (int)pixy_getVecAng());
-	  xprintf ("\t(r,p,y) = %d,\t%d,\t%d\n\r", (int)gyro_getRoll(), (int)gyro_getPitch(), (int)gyro_getYaw());
 
   /* USER CODE END WHILE */
 
@@ -591,24 +473,40 @@ static void MX_TIM4_Init(void)
 
 }
 
-/* TIM7 init function */
-static void MX_TIM7_Init(void)
+/* TIM6 init function */
+static void MX_TIM6_Init(void)
 {
 
   TIM_MasterConfigTypeDef sMasterConfig;
 
-  htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 10000-1;
-  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim7.Init.Period = 84;
-  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 10000-1;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 84;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* TIM10 init function */
+static void MX_TIM10_Init(void)
+{
+
+  htim10.Instance = TIM10;
+  htim10.Init.Prescaler = 10000-1;
+  htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim10.Init.Period = 42;
+  htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim10) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -624,7 +522,7 @@ static void MX_UART5_Init(void)
   huart5.Init.WordLength = UART_WORDLENGTH_8B;
   huart5.Init.StopBits = UART_STOPBITS_1;
   huart5.Init.Parity = UART_PARITY_NONE;
-  huart5.Init.Mode = UART_MODE_TX_RX;
+  huart5.Init.Mode = UART_MODE_RX;
   huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart5.Init.OverSampling = UART_OVERSAMPLING_16;
   if (HAL_UART_Init(&huart5) != HAL_OK)
@@ -658,7 +556,7 @@ static void MX_USART3_UART_Init(void)
 {
 
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 9600;
+  huart3.Init.BaudRate = 115200;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;
@@ -669,6 +567,21 @@ static void MX_USART3_UART_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
+
+}
+
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
 
 }
 

@@ -7,7 +7,7 @@
 
 #include "leg_operations.h"
 
-// functions for initialization
+// functions for initialize structures "Leg"
 void leg_initPWM_KEY_HPTR (Leg *leg, TIM_HandleTypeDef *hptr1, TIM_HandleTypeDef *hptr2, TIM_HandleTypeDef *hptr3){
 	PwmKey key[3] = {{hptr1, leg->pwm_key[JOINT1].channel}, {hptr2, leg->pwm_key[JOINT2].channel}, {hptr3, leg->pwm_key[JOINT3].channel}};
 	for (int i = 0; i < 3; i++)
@@ -44,14 +44,19 @@ void leg_initPOSTURE_DIR (Leg *leg, int m, int n){
 }
 
 
-// functions for leg
+// functions for control legs
 void leg_setJointAngle_rad (Leg *leg, const double ang1, const double ang2, const double ang3){
 	leg->angle[JOINT1] = ang1;
 	leg->angle[JOINT2] = ang2;
 	leg->angle[JOINT3] = ang3;
-	__HAL_TIM_SetCompare(leg->pwm_key[JOINT1].hptr,leg->pwm_key[JOINT1].channel,(leg->pulsewidth_90deg[JOINT1]-leg->pulsewidth_0deg[JOINT1])/PI*2.0*ang1+leg->pulsewidth_0deg[JOINT1]);
-	__HAL_TIM_SetCompare(leg->pwm_key[JOINT2].hptr,leg->pwm_key[JOINT2].channel,(leg->pulsewidth_90deg[JOINT2]-leg->pulsewidth_0deg[JOINT2])/PI*2.0*ang2+leg->pulsewidth_0deg[JOINT2]);
-	__HAL_TIM_SetCompare(leg->pwm_key[JOINT3].hptr,leg->pwm_key[JOINT3].channel,(leg->pulsewidth_90deg[JOINT3]-leg->pulsewidth_0deg[JOINT3])/PI*2.0*ang3+leg->pulsewidth_0deg[JOINT3]);
+
+	__HAL_TIM_SetCompare(leg->pwm_key[JOINT1].hptr,leg->pwm_key[JOINT1].channel,(uint32_t)((leg->pulsewidth_90deg[JOINT1]-leg->pulsewidth_0deg[JOINT1])/PI*2.0*ang1+leg->pulsewidth_0deg[JOINT1]));
+	__HAL_TIM_SetCompare(leg->pwm_key[JOINT2].hptr,leg->pwm_key[JOINT2].channel,(uint32_t)((leg->pulsewidth_90deg[JOINT2]-leg->pulsewidth_0deg[JOINT2])/PI*2.0*ang2+leg->pulsewidth_0deg[JOINT2]));
+	__HAL_TIM_SetCompare(leg->pwm_key[JOINT3].hptr,leg->pwm_key[JOINT3].channel,(uint32_t)((leg->pulsewidth_90deg[JOINT3]-leg->pulsewidth_0deg[JOINT3])/PI*2.0*ang3+leg->pulsewidth_0deg[JOINT3]));
+
+    static int i = 0;
+
+    return;
 }
 
 void leg_setPos (Leg *leg, const double px, const double py, const double pz){
@@ -88,7 +93,6 @@ void leg_move (Leg *leg){
 	tempS = leg->length[ARM3]*sin(ang3)/sqrt(leg->pos.x*leg->pos.x + leg->pos.y*leg->pos.y + leg->pos.z*leg->pos.z - leg->length[ARM1]*leg->length[ARM1]);
 	ang2 = -(asin(tempS) - asin(leg->pos.x/sqrt(leg->pos.x*leg->pos.x + leg->pos.y*leg->pos.y + leg->pos.z*leg->pos.z - leg->length[ARM1]*leg->length[ARM1])));
 
-	//ang1 = atan2(ry, -rz) - atan2(_leg_length[0], _leg_length[1]*cos(ang2)+_leg_length[2]*cos(ang2+ang3));
 	ang1 = atan(leg->posture_dir[0]*leg->pos.y/-leg->pos.z) - atan(leg->length[ARM1]/(leg->length[ARM2]*cos(ang2)+leg->length[ARM3]*cos(ang2+ang3)));
 
 	leg_setJointAngle_rad(leg, ang1, ang2, ang3);

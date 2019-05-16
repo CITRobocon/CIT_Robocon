@@ -11,8 +11,8 @@
 Vec2 v2_arr2vec (double arr[2]){
 	Vec2 vec;
 
-		vec.x = arr[X];
-		vec.y = arr[Y];
+		vec.x = arr[0];
+		vec.y = arr[1];
 
 		return vec;
 }
@@ -72,9 +72,9 @@ double v2_length (Vec2 vec){
 Vec3 v3_arr2vec (double arr[3]){
 	Vec3 vec;
 
-	vec.x = arr[X];
-	vec.y = arr[Y];
-	vec.z = arr[Z];
+	vec.x = arr[0];
+	vec.y = arr[1];
+	vec.z = arr[2];
 
 	return vec;
 }

@@ -75,14 +75,14 @@ Vec3 body_getGP (void){
 	volatile Vec3 ans;
 
 	ans.x = L2G*(sin(leg[0].angle[1]) + sin(leg[1].angle[1]) + sin(leg[2].angle[1]) + sin(leg[3].angle[1]))*M_L2/(M_BODY+M_L2)/4.0;
-    	ans.x += (ans.x*L2/L2G*4.0*(M_BODY+M_L2)/M_L  + L3G*((sin(leg[0].angle[1]+leg[0].angle[2]) + sin(leg[1].angle[1]+leg[1].angle[2]) + sin(leg[2].angle[1]+leg[2].angle[2]) + sin(leg[3].angle[1]+leg[3].angle[2]))))*M_L3/(M_BODY+M_L3)/4.0;
+    ans.x += (ans.x*L2/L2G*4.0*(M_BODY+M_L2)/M_L  + L3G*((sin(leg[0].angle[1]+leg[0].angle[2]) + sin(leg[1].angle[1]+leg[1].angle[2]) + sin(leg[2].angle[1]+leg[2].angle[2]) + sin(leg[3].angle[1]+leg[3].angle[2]))))*M_L3/(M_BODY+M_L3)/4.0;
 
 	ans.y = 0.0;
 
 	ans.z = -L2G*(cos(leg[0].angle[1]) + cos(leg[1].angle[1]) + cos(leg[2].angle[1]) + cos(leg[3].angle[1]))*M_L2/(M_BODY+M_L2)/4.0;
-	ans.z += (ans.z*L2/L2G*4.0*(M_BODY+M_L2)/M_L  - L3G*((cos(leg[0].angle[1]+leg[0].angle[2]) + cos(leg[1].angle[1]+leg[1].angle[2]) + cos(leg[2].angle[1]+leg[2].angle[2]) + cos(leg[3].angle[1]+leg[3].angle[2]))))*M_L3/(M_BODY+M_L3)/4.0;
+    ans.z += (ans.z*L2/L2G*4.0*(M_BODY+M_L2)/M_L  - L3G*((cos(leg[0].angle[1]+leg[0].angle[2]) + cos(leg[1].angle[1]+leg[1].angle[2]) + cos(leg[2].angle[1]+leg[2].angle[2]) + cos(leg[3].angle[1]+leg[3].angle[2]))))*M_L3/(M_BODY+M_L3)/4.0;
 
-	return ans;
+    return ans;
 }
 
 double body_getRotateRadiusOfBody (int n1, int n2){
@@ -92,6 +92,7 @@ double body_getRotateRadiusOfBody (int n1, int n2){
 	l1g = v3_mul_sclr(-1.0, v3_add(gr[n1-1], leg[n1-1].pos));
 	sng = v3_sub(l1g, v3_mul_sclr(v3_dot(l1g, s)/v3_length(s), v3_normalize(s)));
 
+	//return v3_length(v3_closs(sng, v3_num2vec(0, 0, -GRAVITY)));
 	return v3_length(sng);
 }
 

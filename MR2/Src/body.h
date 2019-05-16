@@ -28,11 +28,12 @@
 #define L2G	TO_METER(75)
 #define L3G	TO_METER(88.3)
 
-#define M_BODY	TO_KILOGRAM(1493)
-#define M_L1	TO_KILOGRAM(40)
-#define M_L2	TO_KILOGRAM(175)
-#define M_L3	TO_KILOGRAM(37)
-#define M_L		(M_L1+M_L2+M_L3)
+#define M_BODY		TO_KILOGRAM(1493)
+#define M_L1		TO_KILOGRAM(40)
+#define M_L2		TO_KILOGRAM(175)
+#define M_L3		TO_KILOGRAM(37)
+#define M_L			(M_L1+M_L2+M_L3)
+#define M_FULLBODY	(M_BODY+M_L)
 
 // legs
 Leg leg[4];
