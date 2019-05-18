@@ -89,7 +89,6 @@ GPIO_PinState state1,state2,state3,state4;
 TIM_MasterConfigTypeDef sMasterConfig;
 TIM_OC_InitTypeDef sConfigOC;
 
-
 void uart_putc(uint8_t c)
 {
 	char buf[1];
@@ -113,10 +112,7 @@ void uart_puts(char *str)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  //volatile long i_b;
   xdev_out(uart_putc);
-  volatile double x, y, angle;
-  volatile double av;
 
   /* USER CODE END 1 */
 
@@ -126,7 +122,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  //motor2_write(0.0);
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -158,28 +154,220 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim7);
 
   /* Non loop */
-  HAL_Delay(1500);
-  odometry_set_position(-0.615, 0.5, PI);
+  const double high_speed = 2.0;
+  const double low_speed = 0.5;
+  const double middle_speed = (high_speed+low_speed)/2.0;
+  const double safe_speed = 0.8;
+
+  //set odometry
+  int field_dir = -1;
+  odometry_set_position(field_dir*0.615,-0.5, (double)(1-field_dir)/2.0*PI);
+
+  //wait
+  while(remote_sw_getState() == 0){HAL_Delay(10);}
+
+  //set encoder
+  enc_arm_setAngle_rad(PI/2.0);
+  control_av_throwingArm_start (PI/8.0, 0);
+
   vec4 coes_x, coes_y;
 
-  coes_x = cubicCurve_bezier(-0.615, -2.2, -2.2, -1.225);
-  coes_y = cubicCurve_bezier(0.5, 0.5, 2.5, 2.75);
-  control_follow_cubicCurve_start(coes_x, coes_y, 0.5, 1.0, 1.0, 1.0, 1.0);
+  //-15cm
+  //start moving
+  coes_x = cubicCurve_bezier(field_dir*0.615, field_dir*1.79, field_dir*1.79, field_dir*1.79);
+  coes_y = cubicCurve_bezier(-0.5, -0.5, -1.25, -2.0);
+  control_follow_cubicCurve_start(coes_x, coes_y, low_speed, middle_speed, middle_speed, middle_speed, middle_speed, 0);
 
-  coes_x = cubicCurve_bezier(-1.225, -0.3, -0.3, -1.225);
-  coes_y = cubicCurve_bezier(2.75, 3.25, 3.75, 4.25);
-  while ((control_get_state()&0x02) == 0x02){HAL_Delay(10);}
-  control_follow_cubicCurve_start(coes_x, coes_y, 1.0, 1.0, 1.0, 1.0, 1.0);
+  coes_x = cubicCurve_bezier(field_dir*1.79, field_dir*1.79, field_dir*0.66, field_dir*0.66);
+  coes_y = cubicCurve_bezier(-2.0, -2.75, -2.75, -3.5);
+  while (isUnderControl(2)){HAL_Delay(10);}
+  control_follow_cubicCurve_start(coes_x, coes_y, middle_speed, middle_speed, middle_speed, middle_speed, middle_speed, 0);
 
-  coes_x = cubicCurve_bezier(-1.225, -2.0, -1.225, -1.225);
-  coes_y = cubicCurve_bezier(4.25, 4.75, 5.5, 8.0);
-  while ((control_get_state()&0x02) == 0x02){HAL_Delay(10);}
-  control_follow_cubicCurve_start(coes_x, coes_y, 1.0, 1.0, 1.0, 1.0, 0.5);
+  coes_x = cubicCurve_bezier(field_dir*0.66, field_dir*0.66, field_dir*1.79, field_dir*1.79);
+  coes_y = cubicCurve_bezier(-3.5, -4.25, -4.25, -5.0);
+  while (isUnderControl(2)){HAL_Delay(10);}
+  control_follow_cubicCurve_start(coes_x, coes_y, middle_speed, middle_speed, middle_speed, middle_speed, middle_speed, 0);
 
-  while ((control_get_state()&0x02) == 0x02){HAL_Delay(10);}
-  control_av_wheel_start(0.0, 0.0);
+  coes_x = cubicCurve_bezier(field_dir*1.79, field_dir*1.79, field_dir*1.33, field_dir*1.33);
+  coes_y = cubicCurve_bezier(-5.0, -5.75, -5.75, -6.5);
+  while (isUnderControl(2)){HAL_Delay(10);}
+  control_follow_cubicCurve_start(coes_x, coes_y, middle_speed, middle_speed, middle_speed, middle_speed, middle_speed, 0);
+
+
+  /*
+  coes_x = cubicCurve_bezier(field_dir*1.79, field_dir*1.79, field_dir*1.225, field_dir*1.225);
+  coes_y = cubicCurve_bezier(-5.0, -5.75, -5.75, -6.5);
+  while (isUnderControl(2)){HAL_Delay(10);}
+  control_follow_cubicCurve_start(coes_x, coes_y, middle_speed, middle_speed, middle_speed, middle_speed, middle_speed);
+  */
+
+  //bridge
+
+  coes_x = cubicCurve_bezier(field_dir*1.33, field_dir*1.33, field_dir*1.33, field_dir*1.33);
+  coes_y = cubicCurve_bezier(-6.5, -7.0, -7.4, -7.9);
+  while (isUnderControl(2)){HAL_Delay(10);}
+  control_follow_cubicCurve_start(coes_x, coes_y, middle_speed, middle_speed, middle_speed, middle_speed, middle_speed, 0);
+
+  while (isUnderControl(2)){HAL_Delay(10);}
+  odometry_set_position(field_dir*1.225, -8.0, -PI/2.0);
+
+
+  /*
+  odometry_set_position(field_dir*1.225, -6.5, -PI/2.0);
+
+  coes_x = cubicCurve_bezier(field_dir*1.225, field_dir*1.225, field_dir*1.225, field_dir*1.225);
+  coes_y = cubicCurve_bezier(-6.5, -7.0, -7.5, -8.0);
+  while (isUnderControl(2)){HAL_Delay(10);}
+  control_follow_cubicCurve_start(coes_x, coes_y, low_speed, middle_speed, middle_speed, middle_speed, middle_speed);
+  */
+
+  //meadow
+
+  coes_x = cubicCurve_bezier(field_dir*1.225, field_dir*1.225, field_dir*3.46, field_dir*4.5);
+  coes_y = cubicCurve_bezier(-8.0, -9.0, -9.0, -9.0);
+  while (isUnderControl(2)){HAL_Delay(10);}
+  control_follow_cubicCurve_start(coes_x, coes_y, middle_speed, middle_speed, high_speed, high_speed, middle_speed, 0);
+
+  coes_x = cubicCurve_bezier(field_dir*4.5, field_dir*4.9675, field_dir*5.435, field_dir*5.435);
+  coes_y = cubicCurve_bezier(-9.0, -9.0, -9.0, -8.3);
+  while (isUnderControl(2)){HAL_Delay(10);}
+  control_follow_cubicCurve_start(coes_x, coes_y, middle_speed, middle_speed, middle_speed, low_speed, low_speed, 0);
+
+  while (isUnderControl(2)){HAL_Delay(10);}
+  control_av_wheel_start(0.0, 0.0, 0, 0);
+
+  //pass
+  HAL_Delay(200);
+  solenoid_toggle();
+
+  HAL_Delay(1000);
+  solenoid_toggle();
+
+
+//HAL_Delay(1000);
+//odometry_set_position(field_dir*5.435, -8.3, PI/2.0);
+  //pick shagai
+  control_av_throwingArm_end();
+  control_angle_throwingArm_start(0.0, 0);
+  while (enc_arm_getAngle_rad() > 0.15){HAL_Delay(10);}
+  control_angle_throwingArm_end();
+
+  control_follow_cubicCurve_invert();
+
+  coes_x = cubicCurve_bezier(field_dir*5.435, field_dir*5.435, field_dir*5.435, field_dir*5.435);
+  coes_y = cubicCurve_bezier(-8.3, -8.5, -8.7, -10+L_GP_THROWING_ARM);
+  //while (isUnderControl(2)){HAL_Delay(10);}
+  control_follow_cubicCurve_start(coes_x, coes_y, low_speed, safe_speed, safe_speed, safe_speed, low_speed, 0);
+
+  while (isUnderControl(2)){HAL_Delay(10);}
+
+  control_av_wheel_start(0.0, 0.0, 0.0, 1);
+  control_angle_throwingArm_start(PI/15.0, 1);
+
+  HAL_Delay(1800);
+
+  control_follow_cubicCurve_invert();
+
+  odometry_set_position(field_dir*5.435, -10+L_GP_THROWING_ARM, PI/2.0);
+
+  if (field_dir == 1){
+	  control_av_wheel_start(2.0*PI, -2.0*PI, 0.0, 1);
+      while(odometry_get_angle() < PI-0.1){HAL_Delay(10);}
+  }else{
+  	  control_av_wheel_start(-2.0*PI, 2.0*PI, 0.0, 1);
+      while(odometry_get_angle() > 0.1){HAL_Delay(10);}
+  }
+  control_av_wheel_start(0.0, 0.0, 0.0, 1);
+
+  coes_x = cubicCurve_bezier(field_dir*5.435, field_dir*4.9, field_dir*4.4, field_dir*3.91);
+  coes_y = cubicCurve_bezier(odometry_get_y(), odometry_get_y(), -10+L_GP_THROWING_ARM, -10+L_GP_THROWING_ARM);
+  control_follow_cubicCurve_start(coes_x, coes_y, low_speed, safe_speed, safe_speed, safe_speed, low_speed, 1);
+  while (isUnderControl(2)){HAL_Delay(10);}
+
+  HAL_Delay(1000);
+
+  if (field_dir == 1){
+	  control_av_wheel_start(-2.0*PI, 2.0*PI, 0.0, 1);
+      while(odometry_get_angle() > PI/2.0+0.1 || odometry_get_angle() < 0.0){HAL_Delay(10);}
+  }else{
+  	  control_av_wheel_start(2.0*PI, -2.0*PI, 0.0, 1);
+      while(odometry_get_angle() < PI/2.0-0.1){HAL_Delay(10);}
+  }
+  control_av_wheel_start(0.0, 0.0, 0.0, 1);
+
+  //wait
   led2_write(1);
+  while(remote_sw_getState() == 0){HAL_Delay(10);}
+  led2_write(0);
 
+  //move to throwing position
+  coes_x = cubicCurve_bezier(odometry_get_x(), odometry_get_x(), field_dir*3.5, field_dir*3.5);
+  coes_y = cubicCurve_bezier(-10+L_GP_THROWING_ARM, -7.3, -6.6, -5.96);
+  control_follow_cubicCurve_start(coes_x, coes_y, low_speed, high_speed, high_speed, high_speed, middle_speed, 1);
+  while (isUnderControl(2)){HAL_Delay(10);}
+
+  coes_x = cubicCurve_bezier(field_dir*3.5, field_dir*3.5, field_dir*3.5, field_dir*4.0);
+  coes_y = cubicCurve_bezier(-5.96, -5.5, -5.0, -4.5);
+  control_follow_cubicCurve_start(coes_x, coes_y, middle_speed, middle_speed, middle_speed, middle_speed, low_speed, 1);
+  while (isUnderControl(2)){HAL_Delay(10);}
+
+  //throw
+  control_angle_throwingArm_end();
+  control_av_throwingArm_start(PI*1.5, 1);
+  control_av_wheel_start(0.0, 0.0, 0.0, 1);
+
+  HAL_Delay(1500);
+
+  //2nd and 3rd shagai
+  for (int i = 0; i < 2; i++){
+	  control_follow_cubicCurve_invert();
+
+	  coes_x = cubicCurve_bezier(field_dir*4.0, field_dir*3.5, field_dir*3.5, field_dir*3.5);
+	  coes_y = cubicCurve_bezier(-4.5, -5.0, -5.5, -5.96);
+	  control_follow_cubicCurve_start(coes_x, coes_y, low_speed, middle_speed, high_speed, high_speed, middle_speed, 1);
+	  {
+		  HAL_Delay(1000);
+		  control_av_throwingArm_end();
+		  control_angle_throwingArm_start(0.0, 0);
+		  while (enc_arm_getAngle_rad() > 0.15){HAL_Delay(10);}
+		  control_angle_throwingArm_end();
+	  }
+	  while (isUnderControl(2)){HAL_Delay(10);}
+
+	  coes_x = cubicCurve_bezier(field_dir*3.5, field_dir*3.5, field_dir*(3.5-i*0.45-0.1), field_dir*(3.5-i*0.45-0.1));
+	  coes_y = cubicCurve_bezier(-5.96, -6.6, -7.3, -10+L_GP_THROWING_ARM);
+	  control_follow_cubicCurve_start(coes_x, coes_y, middle_speed, high_speed, middle_speed, middle_speed, low_speed, 1);
+	  while (isUnderControl(2)){HAL_Delay(10);}
+
+	  control_av_wheel_start(0.0, 0.0, 0.0, 1);
+	  control_angle_throwingArm_start(PI/15.0, 1);
+
+	  HAL_Delay(1800);
+
+	  control_follow_cubicCurve_invert();
+
+	  coes_x = cubicCurve_bezier(field_dir*(3.5-i*0.45-0.1), field_dir*(3.5-i*0.45-0.1), field_dir*3.5, field_dir*3.5);
+	  coes_y = cubicCurve_bezier(-10+L_GP_THROWING_ARM, -7.3, -6.6, -5.96);
+	  control_follow_cubicCurve_start(coes_x, coes_y, low_speed, high_speed, high_speed, high_speed, middle_speed, 1);
+	  while (isUnderControl(2)){HAL_Delay(10);}
+
+	  coes_x = cubicCurve_bezier(field_dir*3.51, field_dir*3.51, field_dir*3.51, field_dir*4.01);
+	  coes_y = cubicCurve_bezier(-5.96, -5.5, -5.0, -4.5);
+      control_follow_cubicCurve_start(coes_x, coes_y, middle_speed, middle_speed, middle_speed, middle_speed, low_speed, 1);
+	  while (isUnderControl(2)){HAL_Delay(10);}
+
+	  control_angle_throwingArm_end();
+	  control_av_throwingArm_start(PI*1.5, 1);
+	  control_av_wheel_start(0.0, 0.0, 0.0, 1);
+
+	  HAL_Delay(1500);
+  }
+
+  //end
+  while (isUnderControl(2)){HAL_Delay(10);}
+  control_av_wheel_start(0.0, 0.0, 0.0, 1);
+  led2_write(1);
+  while(1);
 
   /* USER CODE END 2 */
 
@@ -187,10 +375,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  x = odometry_get_x();
-	  y = odometry_get_y();
-	  angle = odometry_get_angle();
-	  av = enc_arm_getAV();
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -214,16 +398,15 @@ void SystemClock_Config(void)
     */
   __HAL_RCC_PWR_CLK_ENABLE();
 
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = 16;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 16;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 8;
   RCC_OscInitStruct.PLL.PLLN = 336;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
   RCC_OscInitStruct.PLL.PLLQ = 2;
@@ -237,12 +420,12 @@ void SystemClock_Config(void)
     */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLRCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -513,15 +696,28 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LD2_Pin|LED2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, SOLENOID_OUT_Pin|LED1_Pin|LED_THREE_2_Pin|LED_THREE_1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, LED1_Pin|LED_THREE_2_Pin|LED_THREE_1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LD2_Pin|LED2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : B1_Pin PR_EVENT_Pin */
   GPIO_InitStruct.Pin = B1_Pin|PR_EVENT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : REMOTE_SWITCH_Pin */
+  GPIO_InitStruct.Pin = REMOTE_SWITCH_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(REMOTE_SWITCH_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : SOLENOID_OUT_Pin LED1_Pin LED_THREE_2_Pin LED_THREE_1_Pin */
+  GPIO_InitStruct.Pin = SOLENOID_OUT_Pin|LED1_Pin|LED_THREE_2_Pin|LED_THREE_1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD2_Pin LED2_Pin */
@@ -530,13 +726,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : LED1_Pin LED_THREE_2_Pin LED_THREE_1_Pin */
-  GPIO_InitStruct.Pin = LED1_Pin|LED_THREE_2_Pin|LED_THREE_1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : SWITCH2_Pin SWITCH_Pin SWITCH3_Pin */
   GPIO_InitStruct.Pin = SWITCH2_Pin|SWITCH_Pin|SWITCH3_Pin;

@@ -14,6 +14,8 @@ double odometry_get_angle(void);
 double odometry_get_av_rightwheel(void);
 double odometry_get_av_leftwheel(void);
 
+int odometry_moving (void);
+
 void odometry_set_position(double x, double y, double angle);
 
 void odometry_update(void);

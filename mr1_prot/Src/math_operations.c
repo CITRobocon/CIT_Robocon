@@ -51,6 +51,7 @@ vec4 cubicEq_LaGrange (double p1, double p2, double p3, double p4){
 	coes.v2 = (18*p1 - 45*p2 + 36*p3 - 9*p4)/2.0;
 	coes.v3 = (-11*p1 + 18*p2 - 9*p3 + 2*p4)/2.0;
 	coes.v4 = p1;
+
 	return coes;
 }
 
@@ -103,7 +104,7 @@ double cubicCurve_get_nearVar (vec4 coes_x, vec4 coes_y, vec2 cp, double u){
 			 + 2.0*coes_y.v2*(coes_y.v4-cp.v2) + coes_y.v3*coes_y.v3;
 	kc[5] = coes_x.v3*(coes_x.v4-cp.v1) + coes_y.v3*(coes_y.v4-cp.v2);
 
-	for (int i = 0; i < 5; i++){
+	for (int i = 0; i < 10; i++){
 		c_primeprime = 5.0*kc[0]*u*u*u*u + 4.0*kc[1]*u*u*u + 3.0*kc[2]*u*u + 2.0*kc[3]*u + kc[4];
 		if (c_primeprime != 0.0)
 			u -= (kc[0]*u*u*u*u*u + kc[1]*u*u*u*u + kc[2]*u*u*u + kc[3]*u*u + kc[4]*u + kc[5])/c_primeprime;
@@ -126,6 +127,5 @@ double sinc (double x){
 		return 1.0;
 	else
 		return sin(x)/x;
-
 }
 

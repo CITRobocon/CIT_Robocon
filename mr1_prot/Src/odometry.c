@@ -18,6 +18,7 @@ volatile double _odometry_y = 0.0;
 volatile double _odometry_angle = 0.0;
 volatile double _odometry_av_rightwheel = 0.0;
 volatile double _odometry_av_leftwheel = 0.0;
+volatile int _odometry_moving = 0;
 
 double odometry_get_x (void){
 	return _odometry_x;
@@ -39,6 +40,10 @@ double odometry_get_av_leftwheel (void){
 	return _odometry_av_leftwheel;
 }
 
+int odometry_moving (void){
+	return _odometry_moving;
+}
+
 void odometry_set_position (double x, double y, double angle){
 	_odometry_x = x;
 	_odometry_y = y;
@@ -54,11 +59,18 @@ void odometry_update (void){
 	d_enc_r = enc_right_getAndResetCount();
 	d_enc_l = enc_left_getAndResetCount();
 
+	if (fabs(d_enc_r) > 10 || fabs(d_enc_l) > 10)
+		_odometry_moving = 1;
+	else
+		_odometry_moving = 0;
+
 	_odometry_av_rightwheel = (-(double)(d_enc_r-d_enc_l)/ENCODER_DISTANCE*(ENCODER_DISTANCE-WHEEL_DISTANCE)/2.0 + (double)d_enc_r)/ppr*2.0*PI*ENCODER_RADIUS/WHEEL_RADIUS/period;
 	_odometry_av_leftwheel = ((double)(d_enc_r-d_enc_l)/ENCODER_DISTANCE*(ENCODER_DISTANCE-WHEEL_DISTANCE)/2.0 + (double)d_enc_l)/ppr*2.0*PI*ENCODER_RADIUS/WHEEL_RADIUS/period;
 
 	d_angle = (double)(d_enc_r-d_enc_l)/ppr*2.0*PI*ENCODER_RADIUS/ENCODER_DISTANCE;
 
+    //_odometry_x += (double)(d_enc_r+d_enc_l)/2.0/ppr*2.0*PI*ENCODER_RADIUS*cos(_odometry_angle+d_angle/2.0);
+	//_odometry_y += (double)(d_enc_r+d_enc_l)/2.0/ppr*2.0*PI*ENCODER_RADIUS*sin(_odometry_angle+d_angle/2.0);
 	_odometry_x += (double)(d_enc_r+d_enc_l)/2.0/ppr*2.0*PI*ENCODER_RADIUS*cos(_odometry_angle+d_angle/2.0)*sinc(d_angle/2.0);
 	_odometry_y += (double)(d_enc_r+d_enc_l)/2.0/ppr*2.0*PI*ENCODER_RADIUS*sin(_odometry_angle+d_angle/2.0)*sinc(d_angle/2.0);
 

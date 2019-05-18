@@ -37,6 +37,7 @@
 
 /* USER CODE BEGIN 0 */
 #include "basic_operations.h"
+#include "math_operations.h"
 #include "control_operations.h"
 #include "odometry.h"
 
@@ -204,8 +205,11 @@ void EXTI9_5_IRQHandler(void)
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
-  control_av_throwingArm_start(0.0);
+  control_av_throwingArm_end();
+  control_av_throwingArm_start(0.0, 0);
+  enc_arm_setAngle_rad(PI/2.0);
   led3c_write(1,1);
+
   /* USER CODE END EXTI9_5_IRQn 1 */
 }
 
@@ -224,22 +228,30 @@ void TIM7_IRQHandler(void)
   static int counter = 0;
 
   // per 10ms|0.010s
+  {
+      enc_arm_updateCount();
+  }
 
   // per 20ms|0.020s
+  unsigned char control_state = control_get_state();
   if (counter%2 == 0){
-	  odometry_update();
-	  enc_arm_updateCount();
+      odometry_update();
+	  if (control_state&0x01)
+		  control_av_wheel();
+	  if ((control_state>>2)&0x01)
+		  control_av_throwingArm();
   }
 
   // per 40ms|0.040s
   if (counter%4 == 0){
-	  unsigned char control_state = control_get_state();
-	  if ((control_state&0x01) == 0x01)
-		  control_av_wheel();
-	  if ((control_state&0x02) == 0x02)
+	  if ((control_state>>1)&0x01)
 		  control_follow_cubicCurve();
-	  if ((control_state&0b100) == 0x04)
-		  control_av_throwingArm();
+	  if ((control_state>>3)&0x01)
+		  control_angle_throwingArm();
+  }
+
+  // per 100ms|0.60s
+  if (counter%10 == 0){
   }
 
   // per 1s
@@ -247,8 +259,8 @@ void TIM7_IRQHandler(void)
 	  HAL_GPIO_WritePin(GPIOC, LED1_Pin, (HAL_GPIO_ReadPin(GPIOC, LED1_Pin)&1)^1);
   }
 
-  // reset counter
   counter++;
+  // reset counter
   if (counter == 100)
 	  counter = 0;
 

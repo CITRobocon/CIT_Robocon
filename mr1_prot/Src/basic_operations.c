@@ -59,7 +59,7 @@ volatile long _enc_arm_count = 0;
 volatile double _enc_arm_av;
 
 void enc_arm_updateCount (void){
-	const double period = 0.020, ppr = 400*84;
+	const double period = 0.010, ppr = 400*84;
 
 	volatile const uint16_t bits = TIM4->CNT;
 	const short val = ((bits>>15) ? -(0xFFFF-bits)-1 : bits);
@@ -70,8 +70,9 @@ void enc_arm_updateCount (void){
 }
 
 void enc_arm_setAngle_rad (double angle){
+	const double ppr = 400*84;
 	TIM4->CNT = 0;
-	_enc_arm_count = angle;
+	_enc_arm_count = (long)(angle*ppr/2.0/PI);
 }
 
 double enc_arm_getAV (void){
@@ -96,17 +97,26 @@ int sw3_getState (void){
 	return HAL_GPIO_ReadPin(GPIOC, SWITCH3_Pin);
 }
 
+int remote_sw_getState (void){
+	return HAL_GPIO_ReadPin(GPIOC, REMOTE_SWITCH_Pin);
+}
+
 // write led
 void led3c_write (int in1, int in2){
     HAL_GPIO_WritePin(GPIOC, LED_THREE_1_Pin, in1&1);
 	HAL_GPIO_WritePin(GPIOC, LED_THREE_2_Pin, in2&1);
 }
 
-void led1_write(int in){
+void led1_write (int in){
 	HAL_GPIO_WritePin(GPIOC, LED1_Pin, in&1);
 }
 
-void led2_write(int in){
+void led2_write (int in){
     HAL_GPIO_WritePin(GPIOA, LED2_Pin, in&1);
+}
+
+// solenoid
+void solenoid_toggle (void){
+	HAL_GPIO_TogglePin(GPIOC, SOLENOID_OUT_Pin);
 }
 
