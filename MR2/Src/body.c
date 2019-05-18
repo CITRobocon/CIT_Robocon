@@ -6,11 +6,14 @@
  */
 
 #include "body.h"
+#include "xprintf.h"
 
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
+
+volatile double body_pos[3] = {}, body_vel[3] = {}, body_acc[3] = {};
 
 void body_init (void){
 	leg_initPWM_KEY_HPTR(&leg[0], &htim1, &htim2, &htim3);
@@ -28,12 +31,12 @@ void body_init (void){
 	leg_initLENGTH(&leg[2], L1, L2, L3);
 	leg_initLENGTH(&leg[3], L1, L2, L3);
 
-	leg_initPULSEWIDTH_0DEG(&leg[0], 1510, 1520, 1470);
+	leg_initPULSEWIDTH_0DEG(&leg[0], 1510, 1480, 1480);
 	leg_initPULSEWIDTH_0DEG(&leg[1], 1520, 1520, 1480);
 	leg_initPULSEWIDTH_0DEG(&leg[2], 1470, 1450, 1450);
 	leg_initPULSEWIDTH_0DEG(&leg[3], 1460, 1450, 1520);
 
-	leg_initPULSEWIDTH_90DEG(&leg[0], 2150,  890, 2090);
+	leg_initPULSEWIDTH_90DEG(&leg[0], 2150,  850, 2110);
 	leg_initPULSEWIDTH_90DEG(&leg[1],  860,  900, 2140);
 	leg_initPULSEWIDTH_90DEG(&leg[2], 2110, 2130,  780);
 	leg_initPULSEWIDTH_90DEG(&leg[3],  795, 2110,  840);
@@ -60,6 +63,22 @@ void body_init (void){
 	gr[3].z = 0.0;
 }
 
+double body_getPos_y (void){
+	return body_pos[1];
+}
+
+double body_getPos_x (void){
+	return body_pos[0];
+}
+
+double body_getVel_y (void){
+	return body_vel[1];
+}
+
+double body_getVel_x (void){
+	return body_vel[0];
+}
+
 Vec3 body_getLegPoint (int n){
 	Vec3 r = v3_add(gr[n-1], leg[n-1].pos);
 
@@ -68,6 +87,10 @@ Vec3 body_getLegPoint (int n){
 
 Vec3 body_getLegPos (int n){
 	return leg[n-1].pos;
+}
+
+double body_getLegAng (int n, int m){
+    return leg[n-1].angle[m];
 }
 
 Vec3 body_getGP (void){
@@ -92,8 +115,17 @@ double body_getRotateRadiusOfBody (int n1, int n2){
 	l1g = v3_mul_sclr(-1.0, v3_add(gr[n1-1], leg[n1-1].pos));
 	sng = v3_sub(l1g, v3_mul_sclr(v3_dot(l1g, s)/v3_length(s), v3_normalize(s)));
 
-	//return v3_length(v3_closs(sng, v3_num2vec(0, 0, -GRAVITY)));
 	return v3_length(sng);
+}
+
+Vec3 body_getRotateRadiusVecOfBody (int n1, int n2){
+	Vec3 s, l1g, sng;
+
+	s = v3_sub(v3_add(gr[n2-1], leg[n2-1].pos), v3_add(gr[n1-1], leg[n1-1].pos));
+	l1g = v3_mul_sclr(-1.0, v3_add(gr[n1-1], leg[n1-1].pos));
+	sng = v3_sub(l1g, v3_mul_sclr(v3_dot(l1g, s)/v3_length(s), v3_normalize(s)));
+
+	return sng;
 }
 
 double body_getMomentByG (int n1, int n2){
@@ -111,6 +143,10 @@ double body_getMomentByG (int n1, int n2){
 }
 
 void body_addForce (double fx, double fy, double fz){
+	body_acc[0] = fx/M_BODY;
+	body_acc[1] = fy/M_BODY;
+	body_acc[2] = fz/M_BODY;
+
 	leg[0].acc.x = -fx/M_BODY;
 	leg[1].acc.x = -fx/M_BODY;
 	leg[2].acc.x = -fx/M_BODY;
@@ -128,6 +164,10 @@ void body_addForce (double fx, double fy, double fz){
 }
 
 void body_setVel (double vx, double vy, double vz){
+	body_vel[0] = vx;
+	body_vel[1] = vy;
+	body_vel[2] = vz;
+
 	leg[0].vel.x = -vx;
 	leg[1].vel.x = -vx;
 	leg[2].vel.x = -vx;
@@ -157,6 +197,16 @@ void body_setLegAcc (int n, double x, double y, double z){
 }
 
 void body_move (void){
+	const double period = 0.010;
+
+	body_pos[0] += body_vel[0]*period + body_acc[0]*period*period/2.0;
+	body_pos[1] += body_vel[1]*period + body_acc[1]*period*period/2.0;
+	body_pos[2] += body_vel[2]*period + body_acc[2]*period*period/2.0;
+
+	body_vel[0] += body_acc[0]*period;
+	body_vel[1] += body_acc[1]*period;
+	body_vel[2] += body_acc[2]*period;
+
 	leg_movement(&leg[0]);
 	leg_movement(&leg[1]);
 	leg_movement(&leg[2]);

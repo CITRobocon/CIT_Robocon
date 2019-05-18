@@ -147,6 +147,13 @@ Vec3 v3_normalize (Vec3 vec){
 	return vec;
 }
 
+double rodrigues_rp (Vec3 n, double roll, double pitch){
+	double c = (cos(pitch)*cos(roll)-n.z*n.z)/(1.0-n.z*n.z);
+	double s = (-sin(pitch)+n.x*n.z*(c-1.0))/n.y;
+
+	return atan2(s,c);
+}
+
 //scalar functions
 double satuation (double x, double x_min, double x_max){
 	if (x < x_min)

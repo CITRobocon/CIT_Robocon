@@ -54,8 +54,6 @@ void leg_setJointAngle_rad (Leg *leg, const double ang1, const double ang2, cons
 	__HAL_TIM_SetCompare(leg->pwm_key[JOINT2].hptr,leg->pwm_key[JOINT2].channel,(uint32_t)((leg->pulsewidth_90deg[JOINT2]-leg->pulsewidth_0deg[JOINT2])/PI*2.0*ang2+leg->pulsewidth_0deg[JOINT2]));
 	__HAL_TIM_SetCompare(leg->pwm_key[JOINT3].hptr,leg->pwm_key[JOINT3].channel,(uint32_t)((leg->pulsewidth_90deg[JOINT3]-leg->pulsewidth_0deg[JOINT3])/PI*2.0*ang3+leg->pulsewidth_0deg[JOINT3]));
 
-    static int i = 0;
-
     return;
 }
 
@@ -78,11 +76,17 @@ void leg_setAcc (Leg *leg, const double ax, const double ay, const double az){
 }
 
 void leg_movement (Leg *leg){
-	const double period = 0.020;
+	const double period = 0.010;
+	Vec3 temp;
 
-	leg->pos = v3_add(leg->pos, v3_add(v3_mul_sclr(period, leg->vel), v3_mul_sclr(period*period/2.0, leg->acc)));
-
-	leg->vel = v3_add(leg->vel, v3_mul_sclr(period, leg->acc));
+  	temp = v3_add(leg->pos, v3_add(v3_mul_sclr(period, leg->vel), v3_mul_sclr(period*period/2.0, leg->acc)));
+    if (v3_length(temp) < leg->length[1] + leg->length[2]){
+    	leg->pos.x = temp.x;
+    	leg->pos.y = temp.y;
+    	leg->pos.z = temp.z;
+    	leg->vel = v3_add(leg->vel, v3_mul_sclr(period, leg->acc));
+    }else
+    	leg->vel = v3_num2vec(0.0, 0.0, 0.0);
 }
 
 void leg_move (Leg *leg){

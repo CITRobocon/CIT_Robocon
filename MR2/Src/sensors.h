@@ -11,13 +11,11 @@
 #ifndef SENSORS_H_
 #define SENSORS_H_
 
+double median_filter(double*, const int);
+
 void gyro_start(void);
 
 int gyro_getBuf(int);
-
-void gyro_pushback_data(void);
-
-uint8_t uart_getc_5(void);
 
 uint8_t uart_getc_3(void);
 

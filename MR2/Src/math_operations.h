@@ -68,6 +68,8 @@ double v3_length (Vec3 vec);
 
 Vec3 v3_normalize (Vec3 vec);
 
+double rodrigues_rp (Vec3, double, double);
+
 //scalar functions
 double satuation (double x, double x_min, double x_max);
 

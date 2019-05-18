@@ -17,7 +17,7 @@
 #define WALK_TROT	1
 #define WALK_STABLE 2
 
-#define WALK_GAIT WALK_STABLE
+#define WALK_GAIT WALK_TROT
 
 int walk_isGround (int);
 

@@ -229,18 +229,18 @@ void TIM1_UP_TIM10_IRQHandler(void)
   // per 20ms
   if (counter%2 == 0){
 	  gyro_update();
-	  /*
+
 	  xprintf ("(r,p,y) = %d,\t%d,\t%d\n", (int)MATH_RAD_TO_DEG(gyro_getRoll())
 			                             , (int)MATH_RAD_TO_DEG(gyro_getPitch())
 										 , (int)MATH_RAD_TO_DEG(gyro_getYaw()));
-	  */
+
   }
 
   // per 40ms
   if (counter%4 == 0){
-	  if (walk_isUnderControl_balance())
-		  walk_control_balance();
-	  body_move();
+	  //if (walk_isUnderControl_balance())
+		  //walk_control_balance();
+	  //body_move();
   }
 
   // per 0.1s
@@ -276,11 +276,11 @@ void TIM6_DAC_IRQHandler(void)
   // per 20ms
   if (counter%2 == 0){
 	  gyro_update();
-	  /*
+
 	  xprintf ("(r,p,y) = %d,\t%d,\t%d\n", (int)MATH_RAD_TO_DEG(gyro_getRoll())
 			                             , (int)MATH_RAD_TO_DEG(gyro_getPitch())
 										 , (int)MATH_RAD_TO_DEG(gyro_getYaw()));
-	  */
+
   }
 
   // per 40ms

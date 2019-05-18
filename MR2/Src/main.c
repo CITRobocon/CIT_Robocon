@@ -166,18 +166,15 @@ int main(void)
   HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
 
   //HAL_TIM_Base_Start_IT(&htim6);
-  HAL_TIM_Base_Start_IT(&htim10);
+  //HAL_TIM_Base_Start_IT(&htim10);
 
   /* Non loop */
   body_init();
 
-  //walk_start();
-
-
-  body_setLegPos(1, 0.0, 0.0, -0.20);
-  body_setLegPos(2, 0.0, 0.0, -0.10);
-  body_setLegPos(3, 0.0, 0.0, -0.20);
-  body_setLegPos(4, 0.0, 0.0, -0.10);
+  body_setLegPos(1, 0.0, 0.0, -0.25);
+  body_setLegPos(2, 0.0, 0.0, -0.20);
+  body_setLegPos(3, 0.0, 0.0, -0.25);
+  body_setLegPos(4, 0.0, 0.0, -0.20);
   body_move();
 
   HAL_Delay(2000);
@@ -188,18 +185,26 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  //walk_control_balance_start();
-  //int cnt = 0;
+  //walk_start();
+  walk_control_balance_start();
 
   gyro_start();
+  gyro_update();
 
   while (1)
   {
-	  /*
-	  walk_tick();
-	  body_move();
-	  HAL_Delay(20);
-	  */
+	  int cntr = 0;
+
+	  gyro_update();
+	  if (cntr%2 == 0){
+
+		  walk_tick();
+		  walk_control_balance();
+		  body_move();
+	  }
+	  HAL_Delay(8);
+	  cntr++;
+
 
   /* USER CODE END WHILE */
 
@@ -272,8 +277,8 @@ void SystemClock_Config(void)
 static void MX_TIM1_Init(void)
 {
 
-  TIM_MasterConfigTypeDef sMasterConfig;
-  TIM_OC_InitTypeDef sConfigOC;
+  //TIM_MasterConfigTypeDef sMasterConfig;
+  //TIM_OC_InitTypeDef sConfigOC;
   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
   htim1.Instance = TIM1;
@@ -331,8 +336,8 @@ static void MX_TIM1_Init(void)
 static void MX_TIM2_Init(void)
 {
 
-  TIM_MasterConfigTypeDef sMasterConfig;
-  TIM_OC_InitTypeDef sConfigOC;
+ // TIM_MasterConfigTypeDef sMasterConfig;
+ // TIM_OC_InitTypeDef sConfigOC;
 
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 84;
@@ -378,8 +383,8 @@ static void MX_TIM2_Init(void)
 static void MX_TIM3_Init(void)
 {
 
-  TIM_MasterConfigTypeDef sMasterConfig;
-  TIM_OC_InitTypeDef sConfigOC;
+ // TIM_MasterConfigTypeDef sMasterConfig;
+ // TIM_OC_InitTypeDef sConfigOC;
 
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 84;
@@ -430,8 +435,8 @@ static void MX_TIM3_Init(void)
 static void MX_TIM4_Init(void)
 {
 
-  TIM_MasterConfigTypeDef sMasterConfig;
-  TIM_OC_InitTypeDef sConfigOC;
+ // TIM_MasterConfigTypeDef sMasterConfig;
+ // TIM_OC_InitTypeDef sConfigOC;
 
   htim4.Instance = TIM4;
   htim4.Init.Prescaler = 84;
@@ -477,7 +482,7 @@ static void MX_TIM4_Init(void)
 static void MX_TIM6_Init(void)
 {
 
-  TIM_MasterConfigTypeDef sMasterConfig;
+ // TIM_MasterConfigTypeDef sMasterConfig;
 
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = 10000-1;

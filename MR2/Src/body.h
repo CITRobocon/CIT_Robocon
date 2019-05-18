@@ -21,7 +21,7 @@
 #define LW	TO_METER(154)
 #define LD	TO_METER(419.1)
 
-#define L1	TO_METER(28)
+#define L1	TO_METER(32)
 #define L2	TO_METER(150)
 #define L3	TO_METER(170)
 
@@ -43,25 +43,37 @@ Vec3 gr[4];
 
 void body_init (void);
 
-Vec3 body_getLegPoint (int n);
+double body_getPos_y (void);
 
-Vec3 body_getLegPos (int n);
+double body_getPos_x (void);
+
+double body_getVel_y (void);
+
+double body_getVel_x (void);
+
+Vec3 body_getLegPoint (int);
+
+Vec3 body_getLegPos (int);
+
+double body_getLegAng (int, int);
 
 Vec3 body_getGP (void);
 
-double body_getRotateRadiusOfBody (int n1, int n2);
+double body_getRotateRadiusOfBody (int, int);
 
-double body_getMomentByG (int n1, int n2);
+Vec3 body_getRotateRadiusVecOfBody (int, int);
 
-void body_addForce (double fx, double fy, double fz);
+double body_getMomentByG (int, int);
 
-void body_setVel (double vx, double vy, double vz);
+void body_addForce (double, double, double);
 
-void body_setLegPos (int n, double x, double y, double z);
+void body_setVel (double, double, double);
 
-void body_setLegVel (int n, double x, double y, double z);
+void body_setLegPos (int, double, double, double);
 
-void body_setLegAcc (int n, double x, double y, double z);
+void body_setLegVel (int, double, double, double);
+
+void body_setLegAcc (int, double, double, double);
 
 void body_move (void);
 

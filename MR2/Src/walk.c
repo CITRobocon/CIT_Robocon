@@ -6,6 +6,7 @@
  */
 
 #include "walk.h"
+#include "xprintf.h"
 
 volatile char leg_state = 0x0F; // 1 1 1 1 (all legs are grounding)
 volatile int walking = 0;
@@ -19,8 +20,8 @@ double walk_hight = 0.25;		// m
 double walk_legInward = -0.09;	// m
 */
 
-double walk_period = 1.0;		// sec
-double walk_speed = 0.10;   	// m/s
+double walk_period = 0.50;		// sec
+double walk_speed = 0.0;   	// m/s
 double walk_hight = 0.25;		// m
 double walk_legInward = 0.0;	// m
 
@@ -160,12 +161,13 @@ int walk_transition (void){		// new stage number return.
 }
 
 void walk_start (void){
+	/*
 	body_setLegPos(1, 0.0, -walk_legInward, -walk_hight);
 	body_setLegPos(2, 0.0, -walk_legInward, -walk_hight);
 	body_setLegPos(3, 0.0, walk_legInward, -walk_hight);
 	body_setLegPos(4, 0.0, walk_legInward, -walk_hight);
+	*/
 	body_move();
-	HAL_Delay(1000);
 
 	const int gait = WALK_GAIT;
 	switch (gait){
@@ -196,7 +198,7 @@ void walk_start (void){
 void walk_tick (void){
 	if (!walking) return;
 
-	const double period = 0.020;
+	const double period = 0.010;
 	static int walk_stage = 0;
 
 	if (WALK_GAIT == WALK_CRAWL){
@@ -220,12 +222,14 @@ void walk_tick (void){
 		}
 
 		// down leg
+		/*
 		body_setVel(walk_speed, 0.0, 0.0);
 		if (mnt != 0.0){
 			Vec3 rotateVec = v3_sub(body_getLegPoint(legNumber.x), body_getLegPoint(legNumber.y));
 			Vec2 rotateVec2 = v2_num2vec(rotateVec.y, rotateVec.x);
 			body_addForce(0.0, -1.0*mnt/lg/fabs(cos(v2_angle(rotateVec2))), 0.0);
 		}
+		*/
 
 		// up leg
 		Vec3 freePoint;
@@ -236,9 +240,11 @@ void walk_tick (void){
 				break;
 		}
 		freePoint = walk_pathPoint_freeLeg(i, internal_time/switching_time - walk_stage);
+		/*
 		body_setLegPos(i, freePoint.x, freePoint.y, freePoint.z);
 		body_setLegVel(i, 0.0, 0.0, 0.0);
 		body_setLegAcc(i, 0.0, 0.0, 0.0);
+		*/
 
 		internal_time += period;
 		if (internal_time >= walk_period){
@@ -253,6 +259,7 @@ void walk_tick (void){
 			walk_stage = walk_transition();
 
 		// cancel gravity
+		/*
 		volatile double mnt, lg = 1.0;
 		volatile Vec3 rotateVec;
 
@@ -265,12 +272,12 @@ void walk_tick (void){
 			lg = body_getRotateRadiusOfBody(4,2);
 			rotateVec = v3_sub(body_getLegPoint(4), body_getLegPoint(2));
 		}
-
+		*/
 
 		// down leg
-		body_setVel(walk_speed, 0.0, 0.0);
-		volatile Vec2 rotateVec2 = v2_num2vec(rotateVec.y, rotateVec.x);
-		body_addForce(0.0, -100.0*mnt/lg/fabs(cos(v2_angle(rotateVec2))), 0.0);
+		//body_setVel(walk_speed, 0.0, 0.0);
+		//volatile Vec2 rotateVec2 = v2_num2vec(rotateVec.y, rotateVec.x);
+		//body_addForce(0.0, mnt/lg/fabs(cos(v2_angle(rotateVec2))), 0.0);
 
 		// up leg
 		Vec3 freePoint;
@@ -285,7 +292,7 @@ void walk_tick (void){
 			body_setLegPos(4, freePoint.x, freePoint.y, freePoint.z);
 			body_setLegVel(4, 0.0, 0.0, 0.0);
 			body_setLegAcc(4, 0.0, 0.0, 0.0);
-		}else{
+		}/*else{
 			freePoint = walk_pathPoint_freeLeg(1, internal_time/switching_time - walk_stage);
 			body_setLegPos(1, freePoint.x, freePoint.y, freePoint.z);
 			body_setLegVel(1, 0.0, 0.0, 0.0);
@@ -295,7 +302,7 @@ void walk_tick (void){
 			body_setLegPos(3, freePoint.x, freePoint.y, freePoint.z);
 			body_setLegVel(3, 0.0, 0.0, 0.0);
 			body_setLegAcc(3, 0.0, 0.0, 0.0);
-		}
+		}*/
 
 		internal_time += period;
 		if (internal_time >= walk_period){
@@ -352,25 +359,40 @@ int walk_isUnderControl_balance(void){
 }
 
 void walk_control_balance (void){
-	const double period = 0.040;
-	const double inertia = 1.0;
+	const double period = 0.010;
 
-	const double lambda1 = 1.0, lambda2 = 1.0;
-	const double fbGain_theta = lambda1*lambda2-(M_FULLBODY)*GRAVITY/inertia, fbGain_omega = lambda1+lambda2;
+	const double fbGain[] = {113.6334, 15.8527, 40.6408, 19.6614};
 
 	static double theta = 0.0;
 
-	double pre_theta = theta, omega, input, rt_radius;
+	volatile double pre_theta = theta, theta_dot, x, x_dot, input;
 
-	theta = gyro_getPitch();
-	omega = (theta-pre_theta)/period;
-
-	input = -(fbGain_theta*theta + fbGain_omega*omega);
-
-	rt_radius = body_getRotateRadiusOfBody(1,3);
+	//Vec3 rotateRadVec = body_getRotateRadiusVecOfBody(1,3);
 	Vec3 rotateVec = v3_sub(body_getLegPoint(1), body_getLegPoint(3));
-	Vec2 rotateVec2 = v2_num2vec(rotateVec.y, rotateVec.x);
-	body_addForce(0.0, input/rt_radius/fabs(cos(v2_angle(rotateVec2))), 0.0);
+	Vec2 rotateVec2 = v2_num2vec(rotateVec.x, rotateVec.y);
+
+	theta = -rodrigues_rp(v3_normalize(rotateVec), gyro_getRoll(), gyro_getPitch());
+	theta_dot = (theta-pre_theta)/period;
+	if (body_getPos_y() < 0)
+		x = hypot(body_getPos_x(), body_getPos_y());
+	else
+		x = -hypot(body_getPos_x(), body_getPos_y());
+
+	if (body_getVel_y() < 0)
+		x_dot = hypot(body_getVel_x(), body_getVel_y());
+	else
+		x_dot = -hypot(body_getVel_x(), body_getVel_y());
+
+	input = -(fbGain[0]*x + fbGain[1]*x_dot + fbGain[2]*theta + fbGain[3]*theta_dot);
+
+	//xprintf ("x, x dot, theta, theta dot = %d,\t%d,\t%d,\t%d\n", (int)(x*1000), (int)(x_dot*1000), (int)MATH_RAD_TO_DEG(theta), (int)MATH_RAD_TO_DEG(theta_dot));
+
+	double tilt = (body_getLegAng(1, 0)+body_getLegAng(3, 0));
+
+	xprintf ("%d\n", (int)MATH_RAD_TO_DEG(tilt));
+
+	body_setVel(0.0, 0.0, 0.0);
+	body_addForce(input*fabs(sin(v2_angle(rotateVec2)))*cos(tilt), -input*fabs(cos(v2_angle(rotateVec2)))*cos(tilt), input*sin(tilt));
 	body_setLegAcc(2, 0.0, 0.0, 0.0);
 	body_setLegAcc(4, 0.0, 0.0, 0.0);
 }
