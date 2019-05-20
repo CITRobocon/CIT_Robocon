@@ -5,6 +5,7 @@
  *      Author: Sano
  */
 
+#include "stm32f4xx_hal.h"
 #include "sensors.h"
 #include "xprintf.h"
 
@@ -13,12 +14,14 @@ extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 
 #define BUFSIZE_GYRO 8
+#define DATASIZE_GYRO 5
+
 #define BUFSIZE_PIXY 5
 
 volatile uint8_t dataBuf_gyro[BUFSIZE_GYRO];
 volatile double pixy_vec_sx_data[3] = {}, pixy_vec_ang_data[3] = {};
 volatile double pixy_vec_sx = 0.0, pixy_vec_ang = 0.0;
-volatile double gyro_roll_data[3] = {}, gyro_pitch_data[3] = {}, gyro_yaw_data[3] = {};
+volatile double gyro_roll_data[DATASIZE_GYRO] = {}, gyro_pitch_data[DATASIZE_GYRO] = {}, gyro_yaw_data[DATASIZE_GYRO] = {};
 volatile double gyro_roll = 0.0, gyro_pitch = 0.0, gyro_yaw = 0.0;
 
 double median_filter (double *dataPtr, const int data_size){
@@ -39,11 +42,19 @@ double median_filter (double *dataPtr, const int data_size){
 		}
 	}
 
-	return sorted_data[i/2+1];
+	return sorted_data[data_size/2+1];
 }
 
 void gyro_start(void){
+	const int datasize = 5;
+
 	HAL_UART_Receive_DMA(&huart5, (uint8_t *)dataBuf_gyro, BUFSIZE_GYRO);
+
+	HAL_Delay(1000);
+	for (int i = 0; i < datasize; i++){
+		gyro_update();
+		HAL_Delay(10);
+	}
 }
 
 int gyro_getBuf (int n){
@@ -103,48 +114,48 @@ void pixy_update(void){
 }
 
 void gyro_update(void){
-	const int data_size = 3;
-
-	int i, sorted_data[BUFSIZE_GYRO-1];
+	int i, sorted_data[BUFSIZE_GYRO-2];
 	uint8_t *data_ptr = (uint8_t *)dataBuf_gyro;
 
-	for (i = 0; i < BUFSIZE_GYRO-2; i++){
+	for (i = 0; i < BUFSIZE_GYRO-1; i++){
 		if (*data_ptr == 100 && *(data_ptr+1) == 100)
 			break;
 		data_ptr++;
 	}
 	data_ptr++;
 
-	for (i = 0; i < BUFSIZE_GYRO-1; i++){
+	for (i = 0; i < BUFSIZE_GYRO-2; i++){
 		data_ptr++;
-		if (data_ptr-dataBuf_gyro >= BUFSIZE_GYRO)
+		if (data_ptr-dataBuf_gyro == BUFSIZE_GYRO)
 			data_ptr = (uint8_t *)dataBuf_gyro;
+		else if (data_ptr-dataBuf_gyro > BUFSIZE_GYRO)
+			data_ptr = (uint8_t *)dataBuf_gyro+1;
 		sorted_data[i] = *data_ptr;
 	}
 
-	for (i = 0; i < data_size-1; i++){
+	for (i = 0; i < DATASIZE_GYRO-1; i++){
 		gyro_roll_data[i] = gyro_roll_data[i+1];
 		gyro_pitch_data[i] = gyro_pitch_data[i+1];
 		gyro_yaw_data[i] = gyro_yaw_data[i+1];
 	}
 
 	if (sorted_data[0] == 0xFF)
-		gyro_roll_data[data_size-1] = MATH_DEG_TO_RAD((double)(sorted_data[1]-0xFF-1));
+		gyro_roll_data[DATASIZE_GYRO-1] = MATH_DEG_TO_RAD((double)(sorted_data[1]-0xFF-1));
 	else
-		gyro_roll_data[data_size-1] = MATH_DEG_TO_RAD((double)(sorted_data[1]));
+		gyro_roll_data[DATASIZE_GYRO-1] = MATH_DEG_TO_RAD((double)(sorted_data[1]));
 
 	if (sorted_data[2] == 0xFF)
-		gyro_pitch_data[data_size-1] = MATH_DEG_TO_RAD((double)(sorted_data[3]-0xFF-1-17));
+		gyro_pitch_data[DATASIZE_GYRO-1] = MATH_DEG_TO_RAD((double)(sorted_data[3]-0xFF-1-17));
 	else
-		gyro_pitch_data[data_size-1] = MATH_DEG_TO_RAD((double)(sorted_data[3]-17));
+		gyro_pitch_data[DATASIZE_GYRO-1] = MATH_DEG_TO_RAD((double)(sorted_data[3]-17));
 
 	if (sorted_data[4] == 0xFF)
-		gyro_yaw_data[data_size-1] = MATH_DEG_TO_RAD((double)(sorted_data[5]-0xFF-1));
+		gyro_yaw_data[DATASIZE_GYRO-1] = MATH_DEG_TO_RAD((double)(sorted_data[5]-0xFF-1));
 	else
-		gyro_yaw_data[data_size-1] = MATH_DEG_TO_RAD((double)(sorted_data[5]));
+		gyro_yaw_data[DATASIZE_GYRO-1] = MATH_DEG_TO_RAD((double)(sorted_data[5]));
 
-	gyro_roll = median_filter((double*)gyro_roll_data, data_size);
-	gyro_pitch = median_filter((double*)gyro_pitch_data, data_size);
-	gyro_yaw = median_filter((double*)gyro_yaw_data, data_size);
+	gyro_roll = median_filter((double*)gyro_roll_data, DATASIZE_GYRO);
+	gyro_pitch = median_filter((double*)gyro_pitch_data, DATASIZE_GYRO);
+	gyro_yaw = median_filter((double*)gyro_yaw_data, DATASIZE_GYRO);
 }
 

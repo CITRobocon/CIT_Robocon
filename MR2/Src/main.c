@@ -171,10 +171,10 @@ int main(void)
   /* Non loop */
   body_init();
 
-  body_setLegPos(1, 0.0, 0.0, -0.25);
-  body_setLegPos(2, 0.0, 0.0, -0.20);
-  body_setLegPos(3, 0.0, 0.0, -0.25);
-  body_setLegPos(4, 0.0, 0.0, -0.20);
+  body_setLegPos(1, 0.0, 0.07, -0.25);
+  body_setLegPos(2, 0.0, 0.07, -0.25);
+  body_setLegPos(3, 0.0, -0.07, -0.25);
+  body_setLegPos(4, 0.0, -0.07, -0.25);
   body_move();
 
   HAL_Delay(2000);
@@ -185,11 +185,10 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  //walk_start();
+  walk_start();
   walk_control_balance_start();
 
   gyro_start();
-  gyro_update();
 
   while (1)
   {
@@ -197,12 +196,11 @@ int main(void)
 
 	  gyro_update();
 	  if (cntr%2 == 0){
-
-		  walk_tick();
-		  walk_control_balance();
+          walk_tick();
+          walk_control_balance();
 		  body_move();
 	  }
-	  HAL_Delay(8);
+	  HAL_Delay(9);
 	  cntr++;
 
 

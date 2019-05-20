@@ -23,7 +23,7 @@ double walk_legInward = -0.09;	// m
 double walk_period = 0.50;		// sec
 double walk_speed = 0.0;   	// m/s
 double walk_hight = 0.25;		// m
-double walk_legInward = 0.0;	// m
+double walk_legInward = -0.07;	// m
 
 
 int walk_isGround (int n){
@@ -49,18 +49,22 @@ int walk_getMaxStage (void){
 }
 
 Vec3 walk_pathPoint_freeLeg (int n, double u){	// walk_pathPoint_freeLeg(leg_number, 0.0~1.0)
-	const double hightrate = 0.5;
-	const double pz[4] = {-walk_hight, -walk_hight*hightrate, -walk_hight*hightrate, -walk_hight};
+	//const double hightrate = 0.6;
+	//const double pz[4] = {-walk_hight, -walk_hight*hightrate, -walk_hight*hightrate, -walk_hight};
+	const double up = 0.080;
 	const Vec3 legPos = body_getLegPos(n);
 
 	if (isRightside(n))
 		return v3_num2vec(u*walk_speed*walk_period*(walk_getMaxStage()-1)/walk_getMaxStage() - walk_speed*walk_period*(walk_getMaxStage()-1)/walk_getMaxStage()/2.0,
 				          (walk_legInward-legPos.y)*u+legPos.y,
-			              (-pz[0]+3.0*pz[1]-3.0*pz[2]+pz[3])*u*u*u + (3.0*pz[0]-6.0*pz[1]+3.0*pz[2])*u*u + (-3.0*pz[0]+3.0*pz[1])*u + pz[0]);
+			              //(-pz[0]+3.0*pz[1]-3.0*pz[2]+pz[3])*u*u*u + (3.0*pz[0]-6.0*pz[1]+3.0*pz[2])*u*u + (-3.0*pz[0]+3.0*pz[1])*u + pz[0]);
+						  up/exp(10.0*(u-0.5)*(u-0.5))-walk_hight);
 	else
 		return v3_num2vec(u*walk_speed*walk_period*(walk_getMaxStage()-1)/walk_getMaxStage() - walk_speed*walk_period*(walk_getMaxStage()-1)/walk_getMaxStage()/2.0,
 				          (-walk_legInward-legPos.y)*u+legPos.y,
-			              (-pz[0]+3.0*pz[1]-3.0*pz[2]+pz[3])*u*u*u + (3.0*pz[0]-6.0*pz[1]+3.0*pz[2])*u*u + (-3.0*pz[0]+3.0*pz[1])*u + pz[0]);
+						  //u*(-walk_legInward)*walk_period*(walk_getMaxStage()-1)/walk_getMaxStage() - walk_legInward*walk_period*(walk_getMaxStage()-1)/walk_getMaxStage()/2.0,
+			              //(-pz[0]+3.0*pz[1]-3.0*pz[2]+pz[3])*u*u*u + (3.0*pz[0]-6.0*pz[1]+3.0*pz[2])*u*u + (-3.0*pz[0]+3.0*pz[1])*u + pz[0]);
+						  up/exp(10.0*(u-0.5)*(u-0.5))-walk_hight);
 
 }
 
@@ -285,24 +289,28 @@ void walk_tick (void){
 		if (walk_isGround(1)){
 			freePoint = walk_pathPoint_freeLeg(2, internal_time/switching_time - walk_stage);
 			body_setLegPos(2, freePoint.x, freePoint.y, freePoint.z);
+			//body_setLegPos(2, body_getLegPos(2).x, body_getLegPos(2).y, freePoint.z);
 			body_setLegVel(2, 0.0, 0.0, 0.0);
 			body_setLegAcc(2, 0.0, 0.0, 0.0);
 
 			freePoint = walk_pathPoint_freeLeg(4, internal_time/switching_time - walk_stage);
 			body_setLegPos(4, freePoint.x, freePoint.y, freePoint.z);
+			//body_setLegPos(4, body_getLegPos(4).x, body_getLegPos(4).y, freePoint.z);
 			body_setLegVel(4, 0.0, 0.0, 0.0);
 			body_setLegAcc(4, 0.0, 0.0, 0.0);
-		}/*else{
+		}else{
 			freePoint = walk_pathPoint_freeLeg(1, internal_time/switching_time - walk_stage);
 			body_setLegPos(1, freePoint.x, freePoint.y, freePoint.z);
+			//body_setLegPos(1, body_getLegPos(1).x, body_getLegPos(1).y, freePoint.z);
 			body_setLegVel(1, 0.0, 0.0, 0.0);
 			body_setLegAcc(1, 0.0, 0.0, 0.0);
 
 			freePoint = walk_pathPoint_freeLeg(3, internal_time/switching_time - walk_stage);
 			body_setLegPos(3, freePoint.x, freePoint.y, freePoint.z);
+			//body_setLegPos(3, body_getLegPos(3).x, body_getLegPos(3).y, freePoint.z);
 			body_setLegVel(3, 0.0, 0.0, 0.0);
 			body_setLegAcc(3, 0.0, 0.0, 0.0);
-		}*/
+		}
 
 		internal_time += period;
 		if (internal_time >= walk_period){
@@ -361,38 +369,133 @@ int walk_isUnderControl_balance(void){
 void walk_control_balance (void){
 	const double period = 0.010;
 
-	const double fbGain[] = {113.6334, 15.8527, 40.6408, 19.6614};
+	const double fbGain[] = {301.7671, 6.1144, 104.7996, 28.1953};
+	//60 ~ 63
+	//const double pidGain[] = {300, 4.0, 61};
 
-	static double theta = 0.0;
+	//static double theta = 0.0;
+	static double theta13 = 0.0;
+	static double theta42 = 0.0;
 
-	volatile double pre_theta = theta, theta_dot, x, x_dot, input;
+	//volatile double pre_theta = theta, theta_dot, x, x_dot, input;
+	volatile double pre_theta13 = theta13, theta_dot13, x13, x_dot13, input13;
+	volatile double pre_theta42 = theta42, theta_dot42, x42, x_dot42, input42;
+
+
+	double tilt13 = (body_getLegAng(1, 0)-body_getLegAng(3, 0))/2.0;
+	double tilt42 = (body_getLegAng(4, 0)-body_getLegAng(2, 0))/2.0;
 
 	//Vec3 rotateRadVec = body_getRotateRadiusVecOfBody(1,3);
-	Vec3 rotateVec = v3_sub(body_getLegPoint(1), body_getLegPoint(3));
-	Vec2 rotateVec2 = v2_num2vec(rotateVec.x, rotateVec.y);
+	Vec3 rotateVec13 = v3_sub(body_getLegPoint(1), body_getLegPoint(3));
+	Vec2 rotateVec213 = v2_num2vec(rotateVec13.x, rotateVec13.y);
+	Vec3 rotateVec42 = v3_sub(body_getLegPoint(4), body_getLegPoint(2));
+	Vec2 rotateVec242 = v2_num2vec(rotateVec42.x, rotateVec42.y);
 
-	theta = -rodrigues_rp(v3_normalize(rotateVec), gyro_getRoll(), gyro_getPitch());
-	theta_dot = (theta-pre_theta)/period;
-	if (body_getPos_y() < 0)
-		x = hypot(body_getPos_x(), body_getPos_y());
-	else
-		x = -hypot(body_getPos_x(), body_getPos_y());
+	theta13 = -rodrigues_rp(v3_normalize(rotateVec13), gyro_getRoll(), gyro_getPitch()) + tilt13;
+	theta42 = -rodrigues_rp(v3_normalize(rotateVec42), gyro_getRoll(), gyro_getPitch()) + tilt42;
+	theta_dot13 = (theta13-pre_theta13)/period;
+	theta_dot42 = (theta42-pre_theta42)/period;
 
-	if (body_getVel_y() < 0)
-		x_dot = hypot(body_getVel_x(), body_getVel_y());
-	else
-		x_dot = -hypot(body_getVel_x(), body_getVel_y());
+	if (body_getPos_y() < 0){
+		x13 = hypot(body_getPos_x(), body_getPos_y());
+		x42 = hypot(body_getPos_x(), body_getPos_y());
+	}else{
+		x13 = -hypot(body_getPos_x(), body_getPos_y());
+		x42 = -hypot(body_getPos_x(), body_getPos_y());
+	}
 
-	input = -(fbGain[0]*x + fbGain[1]*x_dot + fbGain[2]*theta + fbGain[3]*theta_dot);
+	if (body_getVel_y() < 0){
+		x_dot13 = hypot(body_getVel_x(), body_getVel_y());
+		x_dot42 = hypot(body_getVel_x(), body_getVel_y());
+	}else{
+		x_dot13 = -hypot(body_getVel_x(), body_getVel_y());
+		x_dot42 = -hypot(body_getVel_x(), body_getVel_y());
+	}
 
-	//xprintf ("x, x dot, theta, theta dot = %d,\t%d,\t%d,\t%d\n", (int)(x*1000), (int)(x_dot*1000), (int)MATH_RAD_TO_DEG(theta), (int)MATH_RAD_TO_DEG(theta_dot));
-
-	double tilt = (body_getLegAng(1, 0)+body_getLegAng(3, 0));
-
-	xprintf ("%d\n", (int)MATH_RAD_TO_DEG(tilt));
+	input13 = -(fbGain[0]*x13 + fbGain[1]*x_dot13 + fbGain[2]*theta13 + fbGain[3]*theta_dot13);
+	input42 = -(fbGain[0]*x42 + fbGain[1]*x_dot42 + fbGain[2]*theta42 + fbGain[3]*theta_dot42);
+	//input13 = -(pidGain[0]*theta13 + pidGain[2]*theta_dot13);
 
 	body_setVel(0.0, 0.0, 0.0);
-	body_addForce(input*fabs(sin(v2_angle(rotateVec2)))*cos(tilt), -input*fabs(cos(v2_angle(rotateVec2)))*cos(tilt), input*sin(tilt));
-	body_setLegAcc(2, 0.0, 0.0, 0.0);
-	body_setLegAcc(4, 0.0, 0.0, 0.0);
+
+	if (walk_isGround(1)){
+		body_addForce(input13*fabs(sin(v2_angle(rotateVec213)))*cos(tilt13), -input13*fabs(cos(v2_angle(rotateVec213)))*cos(tilt13), input13*sin(tilt13));
+		//body_setLegAcc(2, -input42*fabs(sin(v2_angle(rotateVec242)))*cos(tilt42), -input42*fabs(cos(v2_angle(rotateVec242)))*cos(tilt42), 0.0);
+		//body_setLegAcc(4, -input42*fabs(sin(v2_angle(rotateVec242)))*cos(tilt42), -input42*fabs(cos(v2_angle(rotateVec242)))*cos(tilt42), 0.0);
+		body_setLegAcc(2, 0.0, 0.0, 0.0);
+		body_setLegAcc(4, 0.0, 0.0, 0.0);
+	}else{
+		body_addForce(input42*fabs(sin(v2_angle(rotateVec242)))*cos(tilt42), input42*fabs(cos(v2_angle(rotateVec242)))*cos(tilt42), input13*sin(tilt42));
+		//body_setLegAcc(1, -input13*fabs(sin(v2_angle(rotateVec213)))*cos(tilt13), input13*fabs(cos(v2_angle(rotateVec213)))*cos(tilt13), 0.0);
+		//body_setLegAcc(3, -input13*fabs(sin(v2_angle(rotateVec213)))*cos(tilt13), input13*fabs(cos(v2_angle(rotateVec213)))*cos(tilt13), 0.0);
+		body_setLegAcc(1, 0.0, 0.0, 0.0);
+		body_setLegAcc(3, 0.0, 0.0, 0.0);
+	}
+
+	/*
+	if (walk_isGround(1)){
+		double tilt = (body_getLegAng(1, 0)-body_getLegAng(3, 0))/2.0;
+
+		//Vec3 rotateRadVec = body_getRotateRadiusVecOfBody(1,3);
+		Vec3 rotateVec = v3_sub(body_getLegPoint(1), body_getLegPoint(3));
+		Vec2 rotateVec2 = v2_num2vec(rotateVec.x, rotateVec.y);
+
+		theta = -rodrigues_rp(v3_normalize(rotateVec), gyro_getRoll(), gyro_getPitch()) + tilt;
+		theta_dot = (theta-pre_theta)/period;
+		if (body_getPos_y() < 0)
+			x = hypot(body_getPos_x(), body_getPos_y());
+		else
+			x = -hypot(body_getPos_x(), body_getPos_y());
+
+		if (body_getVel_y() < 0)
+			x_dot = hypot(body_getVel_x(), body_getVel_y());
+		else
+			x_dot = -hypot(body_getVel_x(), body_getVel_y());
+
+		input = -(fbGain[0]*x + fbGain[1]*x_dot + fbGain[2]*theta + fbGain[3]*theta_dot);
+
+		//xprintf ("x, x dot, theta, theta dot = %d,\t%d,\t%d,\t%d\n", (int)(x*1000), (int)(x_dot*1000), (int)MATH_RAD_TO_DEG(theta), (int)MATH_RAD_TO_DEG(theta_dot));
+
+		//xprintf("theta = %d\t", (int)MATH_RAD_TO_DEG(theta));
+		//xprintf ("theta = %d\t", (int)MATH_RAD_TO_DEG(-rodrigues_rp(v3_normalize(rotateVec), gyro_getRoll(), gyro_getPitch())));
+		//xprintf (", tilt = %d\n", (int)MATH_RAD_TO_DEG(tilt));
+
+		body_setVel(0.0, 0.0, 0.0);
+		body_addForce(input*fabs(sin(v2_angle(rotateVec2)))*cos(tilt), -input*fabs(cos(v2_angle(rotateVec2)))*cos(tilt), input*sin(tilt));
+		body_setLegAcc(2, 0.0, 0.0, 0.0);
+		body_setLegAcc(4, 0.0, 0.0, 0.0);
+	}else{
+
+		double tilt = (body_getLegAng(4, 0)-body_getLegAng(2, 0))/2.0;
+
+		//Vec3 rotateRadVec = body_getRotateRadiusVecOfBody(1,3);
+		Vec3 rotateVec = v3_sub(body_getLegPoint(4), body_getLegPoint(2));
+		Vec2 rotateVec2 = v2_num2vec(rotateVec.x, rotateVec.y);
+
+		theta = -rodrigues_rp(v3_normalize(rotateVec), gyro_getRoll(), gyro_getPitch()) + tilt;
+		theta_dot = (theta-pre_theta)/period;
+		if (body_getPos_y() < 0)
+			x = hypot(body_getPos_x(), body_getPos_y());
+		else
+			x = -hypot(body_getPos_x(), body_getPos_y());
+
+		if (body_getVel_y() < 0)
+			x_dot = hypot(body_getVel_x(), body_getVel_y());
+		else
+			x_dot = -hypot(body_getVel_x(), body_getVel_y());
+
+		input = -(fbGain[0]*x + fbGain[1]*x_dot + fbGain[2]*theta + fbGain[3]*theta_dot);
+
+		//xprintf ("x, x dot, theta, theta dot = %d,\t%d,\t%d,\t%d\n", (int)(x*1000), (int)(x_dot*1000), (int)MATH_RAD_TO_DEG(theta), (int)MATH_RAD_TO_DEG(theta_dot));
+
+		//xprintf("theta = %d\t", (int)MATH_RAD_TO_DEG(theta));
+		//xprintf ("theta = %d\t", (int)MATH_RAD_TO_DEG(-rodrigues_rp(v3_normalize(rotateVec), gyro_getRoll(), gyro_getPitch())));
+		//xprintf (", tilt = %d\n", (int)MATH_RAD_TO_DEG(tilt));
+
+		body_setVel(0.0, 0.0, 0.0);
+		body_addForce(input*fabs(sin(v2_angle(rotateVec2)))*cos(tilt), input*fabs(cos(v2_angle(rotateVec2)))*cos(tilt), input*sin(tilt));
+		body_setLegAcc(1, 0.0, 0.0, 0.0);
+		body_setLegAcc(3, 0.0, 0.0, 0.0);
+	}
+	*/
 }
