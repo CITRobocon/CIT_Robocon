@@ -244,16 +244,15 @@ void TIM7_IRQHandler(void)
 	  volatile float r_sensor,l_sensor;
 	  const float max_duty = 0.7;//0~1.0
 	  float ep, ei = 0.0f, ed, ep0 = 0.0f;
-	  const float Kp = 1.0, Ki = 0.010, Kd = 0.00010;
+	  //const float Kp = 0.05, Ki = 0.0003, Kd = 0.01;
+	  const float Kp = 0.1, Ki = 0, Kd = 0.0001;
 	  const float period = 0.020;
 
-	  r_sensor = get_ADCdata_1()/1000;//‚±‚ê‚Å‘å‘Ì0~1
+	  r_sensor = get_ADCdata_1()/1000;//ã“ã‚Œã§å¤§ä½“0~1
 	  l_sensor = get_ADCdata_0()/1000;
 
-	  r_sensor = r_sensor/3;
-	  l_sensor = l_sensor/3;
 
-	  ep = -r_sensor + l_sensor;
+	  ep = -r_sensor + l_sensor;//-2 ~ 2
 	  ei += ep*period;
 	  ed = (ep-ep0)/period;
 	  ep0 = ep;
@@ -261,8 +260,8 @@ void TIM7_IRQHandler(void)
 	  if (ei > 1.0f)
 	     ei = 1.0f;
 
-	   duty_r = 0.10f + Kp*ep + Ki*ei + Kd*ed;
-	   duty_l = 0.10f - Kp*ep - Ki*ei - Kd*ed;
+	   duty_r =   Kp*ep + Ki*ei + Kd*ed;
+	   duty_l = - Kp*ep - Ki*ei - Kd*ed;
 
 	   if (duty_r > max_duty){
 	       duty_r = max_duty;
@@ -272,8 +271,8 @@ void TIM7_IRQHandler(void)
 	       duty_l = max_duty;
 	   }
 
-	   duty_r = duty_r*0.40f + 0.1f;
-	   duty_l = duty_l*0.40f + 0.1f;
+	   duty_r = duty_r * 0.5 + 0.4f;
+	   duty_l = duty_l * 0.5 + 0.4f;
 
 	   motor3_write(duty_r);//r
 	   motor4_write(duty_l);//l
