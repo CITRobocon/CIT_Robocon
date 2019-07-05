@@ -60,7 +60,7 @@ Vec3 v3_sub (Vec3 vec1, Vec3 vec2);
 
 Vec3 v3_mul_sclr (double n, Vec3 vec);
 
-Vec3 v3_closs (Vec3 vec1, Vec3 vec2);
+Vec3 v3_closs (Vec3 vec1, Vec3 vec2);	//正しくは "cross" でした
 
 double v3_dot (Vec3 vec1, Vec3 vec2);
 
