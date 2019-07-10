@@ -27,17 +27,17 @@ typedef struct{
 
 typedef struct{
 	//machine variables
-	volatile double length[3];			//ARM1,2,3
-	volatile PwmKey pwm_key[3];			//JOINT1,2,3
-	volatile double pulsewidth_0deg[3];		//JOINT1,2,3
-	volatile double pulsewidth_90deg[3];		//JOINT1,2,3
-	volatile int posture_dir[2];			//JOINT1,3
+	double length[3];			//ARM1,2,3
+	PwmKey pwm_key[3];			//JOINT1,2,3
+	double pulsewidth_0deg[3];		//JOINT1,2,3
+	double pulsewidth_90deg[3];		//JOINT1,2,3
+	int posture_dir[2];			//JOINT1,3
 
 	//virtual variables
-	volatile double angle[3];			//JOINT1,2,3
-	volatile Vec3 pos;   				//X,Y,Z
-	volatile Vec3 vel;				//X,Y,Z
-	volatile Vec3 acc;				//X,Y,Z
+	double angle[3];			//JOINT1,2,3
+	Vec3 pos;   				//X,Y,Z
+	Vec3 vel;				//X,Y,Z
+	Vec3 acc;				//X,Y,Z
 }Leg;
 
 
