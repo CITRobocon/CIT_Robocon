@@ -92,7 +92,7 @@ double cubicCurve_get_curvRad (vec4 coes_x, vec4 coes_y, double u){
 
 double cubicCurve_get_nearVar (vec4 coes_x, vec4 coes_y, vec2 cp, double u){
 	double kc[6] = {};
-	double c_primeprime;
+	double c_prime;
 
 	kc[0] = 3.0*(coes_x.v1*coes_x.v1 + coes_y.v1*coes_y.v1);
 	kc[1] = 5.0*(coes_x.v1*coes_x.v2 + coes_y.v1*coes_y.v2);
@@ -105,9 +105,9 @@ double cubicCurve_get_nearVar (vec4 coes_x, vec4 coes_y, vec2 cp, double u){
 	kc[5] = coes_x.v3*(coes_x.v4-cp.v1) + coes_y.v3*(coes_y.v4-cp.v2);
 
 	for (int i = 0; i < 10; i++){
-		c_primeprime = 5.0*kc[0]*u*u*u*u + 4.0*kc[1]*u*u*u + 3.0*kc[2]*u*u + 2.0*kc[3]*u + kc[4];
-		if (c_primeprime != 0.0)
-			u -= (kc[0]*u*u*u*u*u + kc[1]*u*u*u*u + kc[2]*u*u*u + kc[3]*u*u + kc[4]*u + kc[5])/c_primeprime;
+		c_prime = 5.0*kc[0]*u*u*u*u + 4.0*kc[1]*u*u*u + 3.0*kc[2]*u*u + 2.0*kc[3]*u + kc[4];
+		if (c_prime != 0.0)
+			u -= (kc[0]*u*u*u*u*u + kc[1]*u*u*u*u + kc[2]*u*u*u + kc[3]*u*u + kc[4]*u + kc[5])/c_prime;
 	}
 
 	return u;
