@@ -26,7 +26,7 @@ typedef struct{
 }PwmKey;
 
 typedef struct{
-	//mechanic variables
+	//machine variables
 	volatile double length[3];			//ARM1,2,3
 	volatile PwmKey pwm_key[3];			//JOINT1,2,3
 	volatile double pulsewidth_0deg[3];		//JOINT1,2,3
